@@ -1,0 +1,98 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "project": "Light Novel Catalog Demo",
+    "description": "解析2930.json轻小说目录数据，生成完整的书目HTML文件",
+    "use_case": "处理wenku8格式的轻小说数据"
+  },
+  "sources": {
+    "novel_catalog": {
+      "type": "file",
+      "path_template": "data/catalogs/{work_id}.json",
+      "format": "json"
+    }
+  },
+  "hierarchy": {
+    "work": {
+      "scan": {
+        "path_template": "data/chapters",
+        "pattern": "*",
+        "id_extractor": {
+          "type": "directory",
+          "path": "work_id"
+        },
+        "title_extractor": {
+          "type": "catalog",
+          "source": "novel_catalog",
+          "query": {
+            "result_field": "title"
+          }
+        }
+      }
+    },
+    "volume": {
+      "scan": {
+        "path_template": "data/chapters/{work_id}",
+        "pattern": "vol_*",
+        "id_extractor": {
+          "type": "directory",
+          "path": "volume_dir",
+          "pattern": "vol_(\\d+)",
+          "transform": {
+            "type": "format",
+            "template": "{1}"
+          }
+        },
+        "title_extractor": {
+          "type": "catalog",
+          "source": "novel_catalog",
+          "query": {
+            "array_field": "volumes",
+            "match_field": "volume_name",
+            "match_value": "{volume_dir}",
+            "match_pattern": "number",
+            "result_field": "volume_name"
+          }
+        }
+      }
+    },
+    "chapter": {
+      "scan": {
+        "path_template": "data/chapters/{work_id}/{volume_dir}",
+        "id_extractor": {
+          "type": "filename",
+          "path": "chapter_file",
+          "pattern": "(\\d+)\\.md"
+        },
+        "title_extractor": {
+          "type": "catalog",
+          "source": "novel_catalog",
+          "query": {
+            "array_field": "volumes",
+            "match_field": "volume_name",
+            "match_value": "{volume_dir}",
+            "match_pattern": "number",
+            "nested_array_field": "chapters",
+            "nested_match_field": "file_path",
+            "nested_match_value": "{chapter_id}",
+            "nested_match_pattern": "stem",
+            "result_field": "chapter_name"
+          }
+        }
+      },
+      "files": {
+        "main_lang": "cn",
+        "side_lang": "en",
+        "pairing_strategy": "directory",
+        "main_file_extractor": {
+          "type": "path",
+          "template": "data/chapters/{work_id}/{volume_dir}/cn/{chapter_id}.md"
+        },
+        "side_file_extractor": {
+          "type": "path",
+          "template": "data/chapters/{work_id}/{volume_dir}/en/{chapter_id}.md"
+        }
+      }
+    }
+  }
+}
