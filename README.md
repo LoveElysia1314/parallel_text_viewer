@@ -2,7 +2,7 @@
 
 一个用于将两份逐行对应文本生成为离线查看 HTML 的工具。支持中英双语对比、Markdown 格式、图片嵌入和响应式布局。
 
-**版本**: 0.6.0 | **许可证**: MIT | **Python**: ≥3.7
+**版本**: 0.6.0 | **许可证**: MIT | **Python**: ≥3.7 | **📖 [API 参考文档](API_REFERENCE.md)**
 
 ## 主要功能
 
@@ -14,6 +14,7 @@
 - ✅ **离线浏览**：生成完全独立的 HTML，无外部依赖
 - ✅ **多卷支持**：支持组织成多卷多章节的书籍结构
 - ✅ **CLI + API**：提供命令行和 Python 编程接口
+- ✅ **高层 API**：`build_from_data()` 函数提供端到端构建
 
 ## 快速开始
 
@@ -124,13 +125,34 @@ parallel_text_viewer/
 python scripts/build_from_data.py data output 2930
 ```
 
-自动完成 4 个步骤：
-1. 生成配置文件
-2. 验证配置
-3. 生成 HTML
-4. 复制图片
+自动完成 5 个步骤：
+1. 发现工作目录
+2. 生成配置文件
+3. 验证配置
+4. 生成 HTML
+5. 复制图片
 
-### 方式 2：CLI 分步执行
+### 方式 2：Python 高层 API
+
+```python
+from parallel_text_viewer.core.build import build_from_data, BuildOptions
+
+# 基本使用
+result = build_from_data(BuildOptions(
+    data_root="data",
+    output_dir="output",
+    book_id="2930"
+))
+
+if result.success:
+    print(f"✓ 构建成功！输出位置: {result.output_dir}")
+    print(f"  已复制 {result.images_copied} 张图片")
+else:
+    for error in result.errors:
+        print(f"✗ {error}")
+```
+
+### 方式 3：CLI 分步执行
 
 ```bash
 # 步骤 1: 生成配置文件
@@ -149,7 +171,7 @@ python -m parallel_text_viewer book_index \
   -d output/
 ```
 
-### 方式 3：Python API
+### 方式 4：Python 低层 API
 
 **单文件生成**：
 

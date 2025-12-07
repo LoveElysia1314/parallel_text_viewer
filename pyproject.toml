@@ -36,7 +36,6 @@ classifiers = [
 Homepage = "https://github.com/LoveElysia1314/parallel-text-viewer"
 Repository = "https://github.com/LoveElysia1314/parallel-text-viewer.git"
 "Bug Tracker" = "https://github.com/LoveElysia1314/parallel-text-viewer/issues"
-
 [project.scripts]
 parallel-text-viewer = "parallel_text_viewer.__main__:main"
 
