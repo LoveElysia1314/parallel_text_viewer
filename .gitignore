@@ -182,6 +182,9 @@ cython_debug/
 
 # Data directory
 data/
-/demo/output_2930
 /demo
 /output
+# Build artifacts
+demo_output/
+test_output/
+docs/
