@@ -29,12 +29,11 @@ INDEX_CSS = """
 
 # 索引页面专用JavaScript
 INDEX_JS = """
-// 索引页面专用变量
+// 索引页面专用变量（searchInput, content 等公共元素已在 COMMON_JS 中声明）
 let currentLanguage = 'cn'; // 默认中文
 
 // 索引页面专用事件处理
 const toggleLanguage = document.getElementById('toggleLanguage');
-const searchInput = document.getElementById('search');
 
 if (toggleLanguage) {
   toggleLanguage.addEventListener('click', () => {
@@ -65,7 +64,7 @@ renderIndex();
 
 // 索引页面专用函数
 function renderIndex() {
-  const content = document.getElementById('content');
+  // content 已在 COMMON_JS 中声明为全局变量
   if (!content) return;
 
   // 这里应该从__INDEX_DATA__获取数据

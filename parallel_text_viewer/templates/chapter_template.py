@@ -64,18 +64,13 @@ CHAPTER_CSS = """
 
 # 章节页面专用JavaScript
 CHAPTER_JS = """
+// 从内联 JSON 加载章节数据
 const pairs = __PAIRS_JSON__;
 const titles = __TITLES_JSON__;
-const content = document.getElementById('content');
-const searchInput = document.getElementById('search');
-const toggleSync = document.getElementById('toggleSync');
-const togglePrimaryDoc = document.getElementById('togglePrimaryDoc');
-const toggleOrientation = document.getElementById('toggleOrientation');
-// NOTE: `togglePanel`, `resetSettings`, sliders and other common controls
-// are declared in COMMON_JS (shared). Do NOT redeclare them here to avoid
-// duplicate-const errors in the browser console.
-const positionSlider = document.getElementById('positionSlider');
-const posInput = document.getElementById('posInput');
+
+// 所有 DOM 元素已在 COMMON_JS 中声明，此处只定义章节专属状态变量
+// 引用 COMMON_JS 中声明的变量: content, searchInput, toggleSync, togglePrimaryDoc,
+//   toggleOrientation, positionSlider, posInput, clickActionSel, progressFill
 
 // 与状态管理器同步的变量
 let syncMode = false;
@@ -90,6 +85,16 @@ let pairObserver = null;
 let tempOverrideIdx = null;
 let tempOverridePrimary = null;
 let isUpdatingPositionFromScroll = false;
+let isDragging = false;
+
+// 移动端拖动检测，防止拖动时触发点击切换
+content.addEventListener('touchstart', () => {
+  isDragging = false;
+});
+
+content.addEventListener('touchmove', () => {
+  isDragging = true;
+});
 
 // 从状态管理器读取所有状态值
 const initialState = stateManager.getAll();
@@ -480,19 +485,32 @@ content.addEventListener('click', (e) => {
     stateManager.set('lastActivePair', idx);
   }
 
-  if (clickAction === 'swap' && !syncMode) {
-    const currPrimary = getPairPrimaryIdx(idx);
-    const newPrimary = 1 - currPrimary;
-    if (tempOverrideIdx === idx) {
-      clearTempOverride();
-    } else {
-      setTempOverride(idx, newPrimary);
+  // 延迟执行切换逻辑，以检查是否有选中文本或拖动（避免在选词或拖动时触发）
+  setTimeout(() => {
+    if (isDragging) {
+      // 如果是拖动操作，则不执行切换
+      return;
     }
-  } else if (clickAction === 'expand') {
-    expandedPairs[idx] = !expandedPairs[idx];
-    stateManager.set('perPairExpanded', expandedPairs);
-  }
-  renderPair(idx);
+    const selection = window.getSelection();
+    if (selection.toString().trim() !== '') {
+      // 如果有选中文本（例如双击选词），则不执行切换
+      return;
+    }
+
+    if (clickAction === 'swap' && !syncMode) {
+      const currPrimary = getPairPrimaryIdx(idx);
+      const newPrimary = 1 - currPrimary;
+      if (tempOverrideIdx === idx) {
+        clearTempOverride();
+      } else {
+        setTempOverride(idx, newPrimary);
+      }
+    } else if (clickAction === 'expand') {
+      expandedPairs[idx] = !expandedPairs[idx];
+      stateManager.set('perPairExpanded', expandedPairs);
+    }
+    renderPair(idx);
+  }, 200); // 延迟200ms，以确保双击选词和拖动检测有足够时间
 });
 
 content.addEventListener('pointerover', (e) => {
@@ -516,7 +534,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowUp') { e.preventDefault(); window.scrollBy(0, -100); }
 });
 
-const clickActionSel = document.getElementById('clickAction');
+// clickActionSel 已在 COMMON_JS 中声明，此处直接使用
 if (clickActionSel) {
   clickActionSel.addEventListener('change', (e) => {
     clickAction = e.target.value;
@@ -697,7 +715,7 @@ CHAPTER_HTML_TEMPLATE = f"""<!doctype html>
     <button class="nav-btn" id="nextVolumeBtn" data-href="__NEXT_VOLUME_URL__">下一卷</button>
   </div>
 
-  <div class="footer">Tip: hover a line to highlight the pair. Click to mark the pair.</div>
+  <div class="footer">Tip: hover a line to highlight the pair. Double-click to mark the pair.</div>
 </div>
 
 <button class="scroll-top-btn" id="scrollTopBtn">↑</button>

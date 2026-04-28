@@ -52,15 +52,7 @@ body{font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Rob
 COMMON_JS = """
 __STATE_MANAGER_CODE__
 
-// 公共变量和初始化
-let isDarkTheme = true;
-let panelCollapsed = false;
-// 将保存进度状态集中在 window 对象上，避免在多个模板中重复声明
-window.saveReadingProgress = window.saveReadingProgress ?? true;
-let saveReadingProgress = window.saveReadingProgress;
-let scrollSaveTimer = null;
-
-// ========== 事件处理 ==========
+// ========== 公共 DOM 元素查询（所有页面共享，统一在此声明，避免重复 const 错误） ==========
 const controlPanel = document.getElementById('controlPanel');
 const togglePanel = document.getElementById('togglePanel');
 const resetSettings = document.getElementById('resetSettings');
@@ -73,8 +65,25 @@ const spaceInput = document.getElementById('spaceInput');
 const widthInput = document.getElementById('widthInput');
 const scrollTopBtn = document.getElementById('scrollTopBtn');
 const toggleSaveProgress = document.getElementById('toggleSaveProgress');
+const searchInput = document.getElementById('search');
+const content = document.getElementById('content');
+
+// 章节页面专属控件（在索引页面中为 null，所有引用处需判空）
+const toggleSync = document.getElementById('toggleSync');
+const togglePrimaryDoc = document.getElementById('togglePrimaryDoc');
+const toggleOrientation = document.getElementById('toggleOrientation');
 const positionSlider = document.getElementById('positionSlider');
 const posInput = document.getElementById('posInput');
+const clickActionSel = document.getElementById('clickAction');
+const progressFill = document.getElementById('progressFill');
+
+// ========== 公共变量和初始化 ==========
+let isDarkTheme = true;
+let panelCollapsed = false;
+// 将保存进度状态集中在 window 对象上，避免在多个模板中重复声明
+window.saveReadingProgress = window.saveReadingProgress ?? true;
+let saveReadingProgress = window.saveReadingProgress;
+let scrollSaveTimer = null;
 
 // 初始化状态管理器放到 DOM 元素查询之后，避免在 block-scoped 变量声明前触发 syncStateToUI 导致 ReferenceError
 stateManager.init();
@@ -131,7 +140,7 @@ if (widthSlider) {
 if (fontInput) {
   fontInput.addEventListener('input', (e) => {
     const size = parseInt(e.target.value);
-    if (isNaN(size) || size < 12 || size > 28) return; // 验证范围
+    if (isNaN(size) || size < 12 || size > 28) return;
     if (fontSlider) fontSlider.value = size;
     document.documentElement.style.setProperty('--font-size', size + 'px');
     stateManager.set('fontSize', size);
@@ -141,7 +150,7 @@ if (fontInput) {
 if (spaceInput) {
   spaceInput.addEventListener('input', (e) => {
     const spacing = parseFloat(e.target.value);
-    if (isNaN(spacing) || spacing < 0.5 || spacing > 3) return; // 验证范围
+    if (isNaN(spacing) || spacing < 0.5 || spacing > 3) return;
     if (spaceSlider) spaceSlider.value = spacing;
     document.documentElement.style.setProperty('--spacing', spacing);
     stateManager.set('spacing', spacing);
@@ -151,7 +160,7 @@ if (spaceInput) {
 if (widthInput) {
   widthInput.addEventListener('input', (e) => {
     const width = parseInt(e.target.value);
-    if (isNaN(width) || width < 50 || width > 100) return; // 验证范围
+    if (isNaN(width) || width < 50 || width > 100) return;
     if (widthSlider) widthSlider.value = width;
     document.documentElement.style.setProperty('--container-width', width + '%');
     stateManager.set('containerWidth', width);
@@ -161,9 +170,9 @@ if (widthInput) {
 if (posInput) {
   posInput.addEventListener('input', (e) => {
     const percent = parseFloat(e.target.value);
-    if (isNaN(percent) || percent < 0 || percent > 100) return; // 验证范围
+    if (isNaN(percent) || percent < 0 || percent > 100) return;
     if (positionSlider) positionSlider.value = percent;
-    // 对于位置输入框，需要调用goToPercent函数
+    // goToPercent 由章节页面定义，使用 typeof 检查避免索引页面报错
     if (typeof goToPercent === 'function') {
       goToPercent(percent);
     }
@@ -218,11 +227,11 @@ window.addEventListener('beforeunload', () => {
   stateManager.save();
 });
 
-// ========== 辅助函数 ==========
+// ========== 唯一的 syncStateToUI 函数（覆盖所有控件，null-safe） ==========
 function syncStateToUI() {
   const state = stateManager.getAll();
 
-  // 确保 saveReadingProgress 始终从 state 中同步到全局变量，避免重复声明问题
+  // 确保 saveReadingProgress 始终从 state 中同步到全局变量
   window.saveReadingProgress = state.saveReadingProgress;
   saveReadingProgress = window.saveReadingProgress;
 
@@ -230,20 +239,44 @@ function syncStateToUI() {
   if (fontSlider) {
     fontSlider.value = state.fontSize;
     if (fontInput) fontInput.value = state.fontSize;
+    document.documentElement.style.setProperty('--font-size', state.fontSize + 'px');
   }
 
   if (spaceSlider) {
     spaceSlider.value = state.spacing;
     if (spaceInput) spaceInput.value = state.spacing;
+    document.documentElement.style.setProperty('--spacing', state.spacing);
   }
 
   if (widthSlider) {
     widthSlider.value = state.containerWidth;
     if (widthInput) widthInput.value = state.containerWidth;
+    document.documentElement.style.setProperty('--container-width', state.containerWidth + '%');
+  }
+
+  if (positionSlider) {
+    positionSlider.value = state.panelScrollPercent;
+    if (posInput) posInput.value = parseFloat(state.panelScrollPercent).toFixed(2);
+  }
+
+  // 同步章节专属按钮
+  if (toggleSync) {
+    toggleSync.textContent = state.syncMode ? 'Sync: ON' : 'Sync: OFF';
+    toggleSync.style.background = state.syncMode ? 'rgba(96,165,250,0.2)' : 'transparent';
+    toggleSync.setAttribute('aria-pressed', state.syncMode.toString());
+  }
+
+  if (togglePrimaryDoc) {
+    togglePrimaryDoc.textContent = state.primaryDocIdx === 0 ? 'Primary: A' : 'Primary: B';
+    togglePrimaryDoc.setAttribute('aria-pressed', (state.primaryDocIdx === 0).toString());
+  }
+
+  if (toggleOrientation) {
+    toggleOrientation.textContent = state.orientation === 'vertical' ? 'Layout: V' : 'Layout: H';
+    toggleOrientation.setAttribute('aria-pressed', (state.orientation === 'vertical').toString());
   }
 
   // 同步主题
-  // 同步主题（使用 `light-theme` 类在 :root 上切换亮色变量）
   if (state.isDarkTheme) {
     document.documentElement.classList.remove('light-theme');
     if (toggleTheme) toggleTheme.textContent = '🌙 Dark';
@@ -270,6 +303,16 @@ function syncStateToUI() {
   if (toggleSaveProgress) {
     toggleSaveProgress.textContent = state.saveReadingProgress ? '📖 Progress: ON' : '📖 Progress: OFF';
     toggleSaveProgress.setAttribute('aria-pressed', state.saveReadingProgress.toString());
+  }
+
+  // 同步搜索框
+  if (searchInput) {
+    searchInput.value = state.searchQuery || '';
+  }
+
+  // 同步点击行为选择器
+  if (clickActionSel) {
+    clickActionSel.value = state.clickAction || 'swap';
   }
 }
 

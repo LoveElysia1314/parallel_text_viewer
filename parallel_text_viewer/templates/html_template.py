@@ -238,6 +238,16 @@ let tempOverrideIdx = null;
 let tempOverridePrimary = null;
 let scrollSaveTimer = null;
 let isUpdatingPositionFromScroll = false;
+let isDragging = false;
+
+// 移动端拖动检测，防止拖动时触发点击切换
+content.addEventListener('touchstart', () => {
+  isDragging = false;
+});
+
+content.addEventListener('touchmove', () => {
+  isDragging = true;
+});
 
 // ========== 初始化 ==========
 // 1. 加载状态
@@ -368,6 +378,43 @@ widthSlider.addEventListener('input', (e) => {
 searchInput.addEventListener('input', (e) => {
   filter(e.target.value);
   stateManager.set('searchQuery', e.target.value);
+});
+
+// 数值输入框事件监听，确保与滑块同步
+fontInput.addEventListener('input', (e) => {
+  const size = parseInt(e.target.value);
+  if (isNaN(size) || size < 12 || size > 28) return; // 验证范围
+  fontSlider.value = size;
+  document.documentElement.style.setProperty('--font-size', size + 'px');
+  scheduleRecomputeHeights();
+  stateManager.set('fontSize', size);
+});
+
+spaceInput.addEventListener('input', (e) => {
+  const spacing = parseFloat(e.target.value);
+  if (isNaN(spacing) || spacing < 0.5 || spacing > 3) return; // 验证范围
+  spaceSlider.value = spacing;
+  document.documentElement.style.setProperty('--spacing', spacing);
+  scheduleRecomputeHeights();
+  stateManager.set('spacing', spacing);
+});
+
+widthInput.addEventListener('input', (e) => {
+  const width = parseInt(e.target.value);
+  if (isNaN(width) || width < 50 || width > 100) return; // 验证范围
+  widthSlider.value = width;
+  document.documentElement.style.setProperty('--container-width', width + '%');
+  stateManager.set('containerWidth', width);
+});
+
+posInput.addEventListener('input', (e) => {
+  const percent = parseFloat(e.target.value);
+  if (isNaN(percent) || percent < 0 || percent > 100) return; // 验证范围
+  positionSlider.value = percent;
+  goToPercent(percent);
+  if (saveReadingProgress) {
+    stateManager.set('panelScrollPercent', percent);
+  }
 });
 
 togglePanel.addEventListener('click', () => {
@@ -655,19 +702,32 @@ content.addEventListener('click', (e) => {
     stateManager.set('lastActivePair', idx);
   }
 
-  if (clickAction === 'swap' && !syncMode) {
-    const currPrimary = getPairPrimaryIdx(idx);
-    const newPrimary = 1 - currPrimary;
-    if (tempOverrideIdx === idx) {
-      clearTempOverride();
-    } else {
-      setTempOverride(idx, newPrimary);
+  // 延迟执行切换逻辑，以检查是否有选中文本或拖动（避免在选词或拖动时触发）
+  setTimeout(() => {
+    if (isDragging) {
+      // 如果是拖动操作，则不执行切换
+      return;
     }
-  } else if (clickAction === 'expand') {
-    expandedPairs[idx] = !expandedPairs[idx];
-    stateManager.set('perPairExpanded', expandedPairs);
-  }
-  renderPair(idx);
+    const selection = window.getSelection();
+    if (selection.toString().trim() !== '') {
+      // 如果有选中文本（例如双击选词），则不执行切换
+      return;
+    }
+
+    if (clickAction === 'swap' && !syncMode) {
+      const currPrimary = getPairPrimaryIdx(idx);
+      const newPrimary = 1 - currPrimary;
+      if (tempOverrideIdx === idx) {
+        clearTempOverride();
+      } else {
+        setTempOverride(idx, newPrimary);
+      }
+    } else if (clickAction === 'expand') {
+      expandedPairs[idx] = !expandedPairs[idx];
+      stateManager.set('perPairExpanded', expandedPairs);
+    }
+    renderPair(idx);
+  }, 200); // 延迟200ms，以确保双击选词和拖动检测有足够时间
 });
 
 content.addEventListener('pointerover', (e) => {
