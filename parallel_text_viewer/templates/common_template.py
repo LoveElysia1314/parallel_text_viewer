@@ -73,6 +73,8 @@ const spaceInput = document.getElementById('spaceInput');
 const widthInput = document.getElementById('widthInput');
 const scrollTopBtn = document.getElementById('scrollTopBtn');
 const toggleSaveProgress = document.getElementById('toggleSaveProgress');
+const positionSlider = document.getElementById('positionSlider');
+const posInput = document.getElementById('posInput');
 
 // 初始化状态管理器放到 DOM 元素查询之后，避免在 block-scoped 变量声明前触发 syncStateToUI 导致 ReferenceError
 stateManager.init();
@@ -122,6 +124,52 @@ if (widthSlider) {
     if (widthInput) widthInput.value = width;
     document.documentElement.style.setProperty('--container-width', width + '%');
     stateManager.set('containerWidth', parseInt(width));
+  });
+}
+
+// 数值输入框事件监听，确保与滑块同步
+if (fontInput) {
+  fontInput.addEventListener('input', (e) => {
+    const size = parseInt(e.target.value);
+    if (isNaN(size) || size < 12 || size > 28) return; // 验证范围
+    if (fontSlider) fontSlider.value = size;
+    document.documentElement.style.setProperty('--font-size', size + 'px');
+    stateManager.set('fontSize', size);
+  });
+}
+
+if (spaceInput) {
+  spaceInput.addEventListener('input', (e) => {
+    const spacing = parseFloat(e.target.value);
+    if (isNaN(spacing) || spacing < 0.5 || spacing > 3) return; // 验证范围
+    if (spaceSlider) spaceSlider.value = spacing;
+    document.documentElement.style.setProperty('--spacing', spacing);
+    stateManager.set('spacing', spacing);
+  });
+}
+
+if (widthInput) {
+  widthInput.addEventListener('input', (e) => {
+    const width = parseInt(e.target.value);
+    if (isNaN(width) || width < 50 || width > 100) return; // 验证范围
+    if (widthSlider) widthSlider.value = width;
+    document.documentElement.style.setProperty('--container-width', width + '%');
+    stateManager.set('containerWidth', width);
+  });
+}
+
+if (posInput) {
+  posInput.addEventListener('input', (e) => {
+    const percent = parseFloat(e.target.value);
+    if (isNaN(percent) || percent < 0 || percent > 100) return; // 验证范围
+    if (positionSlider) positionSlider.value = percent;
+    // 对于位置输入框，需要调用goToPercent函数
+    if (typeof goToPercent === 'function') {
+      goToPercent(percent);
+    }
+    if (saveReadingProgress) {
+      stateManager.set('panelScrollPercent', percent);
+    }
   });
 }
 
