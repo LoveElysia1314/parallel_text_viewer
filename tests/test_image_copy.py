@@ -8,8 +8,7 @@ import pytest
 import json
 import tempfile
 from pathlib import Path
-from parallel_text_viewer.utils.image_utils import copy_files, copy_images_from_config
-from parallel_text_viewer.utils.path_utils import find_working_directory
+from parallel_text_viewer.utils import copy_files, copy_images_from_config, find_working_directory
 
 
 class TestFindWorkingDirectory:
@@ -20,14 +19,14 @@ class TestFindWorkingDirectory:
         # 创建测试结构
         data_root = tmp_path / "data"
         data_root.mkdir()
-        
+
         working_dir = data_root / "novel_2930"
         working_dir.mkdir()
-        
+
         # 创建 vol_001
         vol_dir = working_dir / "vol_001"
         vol_dir.mkdir()
-        
+
         # 查找
         result = find_working_directory(data_root, "2930")
         assert result == working_dir
@@ -36,13 +35,13 @@ class TestFindWorkingDirectory:
         """测试查找 <book_id> 目录"""
         data_root = tmp_path / "data"
         data_root.mkdir()
-        
+
         working_dir = data_root / "2930"
         working_dir.mkdir()
-        
+
         vol_dir = working_dir / "vol_001"
         vol_dir.mkdir()
-        
+
         result = find_working_directory(data_root, "2930")
         assert result == working_dir
 
@@ -50,16 +49,16 @@ class TestFindWorkingDirectory:
         """测试查找 chapters/<book_id> 目录"""
         data_root = tmp_path / "data"
         data_root.mkdir()
-        
+
         chapters_dir = data_root / "chapters"
         chapters_dir.mkdir()
-        
+
         working_dir = chapters_dir / "2930"
         working_dir.mkdir()
-        
+
         vol_dir = working_dir / "vol_001"
         vol_dir.mkdir()
-        
+
         result = find_working_directory(data_root, "2930")
         assert result == working_dir
 
@@ -67,41 +66,33 @@ class TestFindWorkingDirectory:
         """测试自定义候选目录"""
         data_root = tmp_path / "data"
         data_root.mkdir()
-        
+
         custom_dir = data_root / "custom_path"
         custom_dir.mkdir()
-        
+
         vol_dir = custom_dir / "vol_001"
         vol_dir.mkdir()
-        
-        result = find_working_directory(
-            data_root,
-            "2930",
-            candidates=["custom_path"]
-        )
+
+        result = find_working_directory(data_root, "2930", candidates=["custom_path"])
         assert result == custom_dir
 
     def test_find_not_exists(self, tmp_path):
         """测试目录不存在的情况"""
         data_root = tmp_path / "data"
         data_root.mkdir()
-        
+
         # 传入一个完全不存在的候选
-        result = find_working_directory(
-            data_root,
-            "nonexistent",
-            candidates=["nonexistent_path"]
-        )
+        result = find_working_directory(data_root, "nonexistent", candidates=["nonexistent_path"])
         assert result is None
 
     def test_find_returns_first_existing_without_volumes(self, tmp_path):
         """测试没有 vol_* 子目录时返回第一个存在的"""
         data_root = tmp_path / "data"
         data_root.mkdir()
-        
+
         working_dir = data_root / "novel_2930"
         working_dir.mkdir()
-        
+
         result = find_working_directory(data_root, "2930")
         assert result == working_dir
 
@@ -114,22 +105,17 @@ class TestCopyFiles:
         # 创建源文件
         data_root = tmp_path / "data"
         data_root.mkdir()
-        
+
         img_dir = data_root / "images" / "2930" / "vol_001"
         img_dir.mkdir(parents=True)
-        
+
         img_file = img_dir / "001.jpg"
         img_file.write_text("fake image")
-        
+
         # 复制
         output_dir = tmp_path / "output"
-        copied, failed = copy_files(
-            [img_file],
-            data_root,
-            output_dir,
-            preserve_structure=True
-        )
-        
+        copied, failed = copy_files([img_file], data_root, output_dir, preserve_structure=True)
+
         # 验证
         assert copied == 1
         assert failed == 0
@@ -139,21 +125,16 @@ class TestCopyFiles:
         """测试不保留目录结构的复制"""
         data_root = tmp_path / "data"
         data_root.mkdir()
-        
+
         img_dir = data_root / "images" / "2930" / "vol_001"
         img_dir.mkdir(parents=True)
-        
+
         img_file = img_dir / "001.jpg"
         img_file.write_text("fake image")
-        
+
         output_dir = tmp_path / "output"
-        copied, failed = copy_files(
-            [img_file],
-            data_root,
-            output_dir,
-            preserve_structure=False
-        )
-        
+        copied, failed = copy_files([img_file], data_root, output_dir, preserve_structure=False)
+
         assert copied == 1
         assert failed == 0
         assert (output_dir / "001.jpg").exists()
@@ -162,22 +143,18 @@ class TestCopyFiles:
         """测试 dry_run 模式"""
         data_root = tmp_path / "data"
         data_root.mkdir()
-        
+
         img_dir = data_root / "images"
         img_dir.mkdir()
-        
+
         img_file = img_dir / "001.jpg"
         img_file.write_text("fake image")
-        
+
         output_dir = tmp_path / "output"
         copied, failed = copy_files(
-            [img_file],
-            data_root,
-            output_dir,
-            preserve_structure=True,
-            dry_run=True
+            [img_file], data_root, output_dir, preserve_structure=True, dry_run=True
         )
-        
+
         # 虽然返回成功，但不应该实际复制
         assert copied == 1
         assert not output_dir.exists()
@@ -186,24 +163,20 @@ class TestCopyFiles:
         """测试不覆盖已存在文件"""
         data_root = tmp_path / "data"
         data_root.mkdir()
-        
+
         img_file = data_root / "001.jpg"
         img_file.write_text("fake image v1")
-        
+
         output_dir = tmp_path / "output"
         output_dir.mkdir()
-        
+
         existing_file = output_dir / "001.jpg"
         existing_file.write_text("existing v2")
-        
+
         copied, failed = copy_files(
-            [img_file],
-            data_root,
-            output_dir,
-            preserve_structure=False,
-            overwrite=False
+            [img_file], data_root, output_dir, preserve_structure=False, overwrite=False
         )
-        
+
         # 应该跳过而不是复制
         assert (output_dir / "001.jpg").read_text() == "existing v2"
 
@@ -211,16 +184,12 @@ class TestCopyFiles:
         """测试复制不存在的文件"""
         data_root = tmp_path / "data"
         data_root.mkdir()
-        
+
         nonexistent = data_root / "nonexistent.jpg"
-        
+
         output_dir = tmp_path / "output"
-        copied, failed = copy_files(
-            [nonexistent],
-            data_root,
-            output_dir
-        )
-        
+        copied, failed = copy_files([nonexistent], data_root, output_dir)
+
         assert copied == 0
         assert failed == 1
 
@@ -233,20 +202,20 @@ class TestCopyImagesFromConfig:
         # 创建数据结构
         data_root = tmp_path / "data"
         data_root.mkdir()
-        
+
         img_dir = data_root / "images" / "2930" / "vol_001"
         img_dir.mkdir(parents=True)
-        
+
         img1 = img_dir / "001_1.jpg"
         img1.write_text("image1")
-        
+
         img2 = img_dir / "001_2.jpg"
         img2.write_text("image2")
-        
+
         # 创建配置文件
         output_dir = tmp_path / "output"
         output_dir.mkdir()
-        
+
         config = {
             "works": [
                 {
@@ -267,19 +236,16 @@ class TestCopyImagesFromConfig:
                 }
             ]
         }
-        
+
         config_file = output_dir / "config.json"
-        with open(config_file, 'w', encoding='utf-8') as f:
+        with open(config_file, "w", encoding="utf-8") as f:
             json.dump(config, f)
-        
+
         # 复制图片
         copied, failed = copy_images_from_config(
-            config_file,
-            data_root,
-            output_dir,
-            preserve_structure=True
+            config_file, data_root, output_dir, preserve_structure=True
         )
-        
+
         # 验证
         assert copied == 2
         assert failed == 0
@@ -289,13 +255,9 @@ class TestCopyImagesFromConfig:
     def test_copy_images_no_config(self, tmp_path):
         """测试配置文件不存在"""
         config_file = tmp_path / "nonexistent.json"
-        
-        copied, failed = copy_images_from_config(
-            config_file,
-            tmp_path,
-            tmp_path / "output"
-        )
-        
+
+        copied, failed = copy_images_from_config(config_file, tmp_path, tmp_path / "output")
+
         assert copied == 0
         assert failed == 0
 
@@ -303,17 +265,13 @@ class TestCopyImagesFromConfig:
         """测试空配置文件"""
         output_dir = tmp_path / "output"
         output_dir.mkdir()
-        
+
         config_file = output_dir / "config.json"
-        with open(config_file, 'w', encoding='utf-8') as f:
+        with open(config_file, "w", encoding="utf-8") as f:
             json.dump({}, f)
-        
-        copied, failed = copy_images_from_config(
-            config_file,
-            tmp_path,
-            output_dir
-        )
-        
+
+        copied, failed = copy_images_from_config(config_file, tmp_path, output_dir)
+
         assert copied == 0
         assert failed == 0
 

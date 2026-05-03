@@ -6,8 +6,7 @@
 
 import sys
 
-from .cli.parser import ArgumentParser
-from .cli.dispatcher import CommandDispatcher
+from .cli import ArgumentParser, CommandDispatcher
 
 
 def main():
