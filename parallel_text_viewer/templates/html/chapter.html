@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>__TITLE__</title>
+<style>
+{{COMMON_CSS}}
+{{CHAPTER_CSS}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+      <div>
+      <h2 id="pageTitle" class="title-heading">__TITLE__</h2>
+      <div style="color:var(--muted);font-size:13px">__COUNT__ pairs</div>
+    </div>
+  </div>
+
+  <div class="control-panel" id="controlPanel">
+    <input id="search" class="search" placeholder="Search…" />
+
+    <div class="panel-section two-col">
+      <button id="toggleSync" class="panel-button" aria-pressed="false" aria-controls="content">Sync: OFF</button>
+      <button id="togglePrimaryDoc" class="panel-button" aria-pressed="false" aria-controls="content">Primary: A</button>
+    </div>
+
+    <div class="panel-section two-col">
+      <button id="toggleTheme" class="panel-button" aria-pressed="false">🌙 Dark</button>
+      <button id="toggleOrientation" class="panel-button" aria-pressed="true">Layout: V</button>
+    </div>
+
+    <div class="panel-section">
+      <div class="slider-container">
+        <span class="label-small">Font</span>
+        <input type="range" id="fontSlider" class="slider" min="12" max="28" value="16" />
+        <div class="slider-input-group">
+          <input type="number" id="fontInput" min="12" max="28" value="16" />
+          <span class="unit">px</span>
+        </div>
+      </div>
+      <div class="slider-container">
+        <span class="label-small">Space</span>
+        <input type="range" id="spaceSlider" class="slider" min="0.5" max="3" step="0.1" value="1" />
+        <div class="slider-input-group">
+          <input type="number" id="spaceInput" min="0.5" max="3" step="0.1" value="1" />
+          <span class="unit">x</span>
+        </div>
+      </div>
+      <div class="slider-container">
+        <span class="label-small">Width</span>
+        <input type="range" id="widthSlider" class="slider" min="50" max="100" step="1" value="75" />
+        <div class="slider-input-group">
+          <input type="number" id="widthInput" min="50" max="100" step="1" value="75" />
+          <span class="unit">%</span>
+        </div>
+      </div>
+      <div class="slider-container">
+        <span class="label-small">Pos</span>
+        <input type="range" id="positionSlider" class="slider" min="0" max="100" step="0.1" value="0" aria-label="Scroll position percentage" title="Scroll to position percent" />
+        <div class="slider-input-group">
+          <input type="number" id="posInput" min="0" max="100" step="0.1" value="0" />
+          <span class="unit">%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section two-col">
+      <button id="resetSettings" class="panel-button">↻ Reset</button>
+      <button id="clearSwaps" class="panel-button">✕ Swap</button>
+    </div>
+
+    <div class="panel-section">
+      <div style="display:flex;gap:8px;align-items:center;">
+        <label class="label-small">Click:</label>
+        <select id="clickAction" class="search" style="flex:1;width:auto;">
+          <option value="swap">Swap</option>
+          <option value="expand">Expand</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="panel-section two-col">
+      <button id="toggleSaveProgress" class="panel-button" aria-pressed="true">📖 Progress: ON</button>
+      <button id="clearProgress" class="panel-button">🗑️ Clear Progress</button>
+    </div>
+
+    <button id="togglePanel" class="panel-button" style="width:44px;height:44px;padding:0;margin:0;">−</button>
+  </div>  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <div id="content" class="col" style="min-height:400px"></div>
+
+  <div class="chapter-nav" id="chapterNav" style="margin-top:12px;display:flex;gap:8px;justify-content:center">
+    <button class="nav-btn" id="prevVolumeBtn" data-href="__PREV_VOLUME_URL__">上一卷</button>
+    <button class="nav-btn" id="prevChapterBtn" data-href="__PREV_CHAPTER_URL__">上一章</button>
+    <button class="nav-btn" id="indexBtn" data-href="__INDEX_URL__">返回书目</button>
+    <button class="nav-btn" id="nextChapterBtn" data-href="__NEXT_CHAPTER_URL__">下一章</button>
+    <button class="nav-btn" id="nextVolumeBtn" data-href="__NEXT_VOLUME_URL__">下一卷</button>
+  </div>
+
+  <div class="footer">Tip: hover a line to highlight the pair. Double-click to mark the pair.</div>
+</div>
+
+<button class="scroll-top-btn" id="scrollTopBtn">↑</button>
+
+<script>
+{{COMMON_JS}}
+{{CHAPTER_JS}}
+</script>
+</body>
+</html>

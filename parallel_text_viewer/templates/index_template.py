@@ -2,6 +2,9 @@
 索引页面专用模板组件
 
 包含索引页面的专用CSS和JavaScript逻辑。
+
+⚠️ 已弃用：模板内容已迁移至 templates/html/ 目录下的独立文件。
+   保留此模块仅用于向后兼容引用。
 """
 
 from .common_template import COMMON_CSS, COMMON_JS

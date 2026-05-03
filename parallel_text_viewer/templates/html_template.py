@@ -411,7 +411,9 @@ posInput.addEventListener('input', (e) => {
   const percent = parseFloat(e.target.value);
   if (isNaN(percent) || percent < 0 || percent > 100) return; // 验证范围
   positionSlider.value = percent;
+  isUpdatingPositionFromScroll = true;
   goToPercent(percent);
+  setTimeout(() => { isUpdatingPositionFromScroll = false; }, 150);
   if (saveReadingProgress) {
     stateManager.set('panelScrollPercent', percent);
   }
@@ -438,6 +440,10 @@ window.addEventListener('scroll', () => {
     if (scrollSaveTimer) clearTimeout(scrollSaveTimer);
     scrollSaveTimer = setTimeout(() => {
       stateManager.set('scrollTop', Math.round(window.scrollY));
+      // 同步 panelScrollPercent，使 pos 双向联动
+      const idx = findClosestVisibleIndexToCenter();
+      const pct = indexToPercent(idx);
+      stateManager.set('panelScrollPercent', pct);
     }, 200);
   }
 });

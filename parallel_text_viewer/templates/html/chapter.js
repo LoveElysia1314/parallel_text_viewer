@@ -1,72 +1,3 @@
-"""
-章节页面专用模板组件
-
-包含章节页面的专用CSS和JavaScript逻辑。
-
-⚠️ 已弃用：模板内容已迁移至 templates/html/ 目录下的独立文件。
-   保留此模块仅用于向后兼容引用。
-"""
-
-from .common_template import COMMON_CSS, COMMON_JS
-
-# 章节页面专用CSS
-CHAPTER_CSS = """
-.view-panel{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--font-size) * var(--spacing) * 1.8)}
-@media (aspect-ratio: 1 / 1.2){.view-panel{gap:0;grid-template-columns:1fr}}
-.col{background:var(--panel);padding:calc(var(--font-size) * var(--spacing) * 0.4) 8px;border-radius:8px;box-shadow:0 1px 0 rgba(255,255,255,0.03) inset;display:flex;flex-direction:column;gap:0}
-@media (aspect-ratio: 1 / 1.2){.col{padding:calc(var(--font-size) * var(--spacing) * 0.4) 8px;border-radius:0;box-shadow:none}}
-.pair-wrapper{display:flex;flex-direction:column;gap:0;padding:0;border-radius:6px}
-.pair-wrapper.horizontal{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:start}
-.pair-wrapper.horizontal .block-main, .pair-wrapper.horizontal .block-side{margin-bottom:0}
-.pair-wrapper.horizontal .block-side.hidden{display:none}
-.pair-wrapper.horizontal .block-main{grid-column:auto}
-.pair-wrapper.horizontal .block-side{grid-column:auto}
-.pair-wrapper.horizontal:has(.block-side.hidden) .block-main{grid-column:1/-1;margin-bottom:0}
-.block-main, .block-side{display:block}
-.block-side.hidden{display:none}
-.row{padding:0;margin:0}
-.line{padding:0 8px;padding-top:calc(var(--font-size) * max(0, min(0.25, var(--spacing) - 0.75)));padding-bottom:calc(var(--font-size) * max(0.25, var(--spacing) - 0.75));margin-top:calc(var(--font-size) * min(0, var(--spacing) - 0.75));border-radius:6px;background:transparent;white-space:pre-wrap;font-size:var(--font-size);line-height:calc(var(--spacing) + 0.5);min-height:var(--font-size)}
-.line:hover{background:rgba(96,165,250,0.06);cursor:pointer}
-.line:focus-visible{outline:2px solid rgba(96,165,250,0.8);outline-offset:2px}
-.text{display:inline}
-.block-main, .block-side{margin-bottom:0}
-.pair-wrapper.highlight .line{background:rgba(96,165,250,0.08)}
-.pair-wrapper.swapped{background:rgba(96,165,250,0.04)}
-.pair-wrapper.expanded .block-side{display:block}
-.progress-bar{width:100%;height:4px;background:var(--line);border-radius:2px;margin-top:8px;overflow:hidden}
-.progress-fill{height:100%;background:var(--accent);transition:width 0.3s}
-
-/* 图片样式 */
-.line img {
-  display: block;
-  margin: 12px auto;
-  max-width: 100%;
-  max-height: 80vh;
-  height: auto;
-  width: auto;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.line img:hover {
-  transform: scale(1.02);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* 仅对包含图片的行应用居中对齐 */
-.line:has(img) {
-  text-align: center;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-"""
-
-# 章节页面专用JavaScript
-CHAPTER_JS = """
 // 从内联 JSON 加载章节数据
 const pairs = __PAIRS_JSON__;
 const titles = __TITLES_JSON__;
@@ -238,7 +169,7 @@ function createPair(pairIdx, textA, textB) {
   mainLine.className = 'line';
   const mainText = document.createElement('span');
   mainText.className = 'text';
-  mainText.textContent = textA + '\\n\\n';
+  mainText.textContent = textA + '\n\n';
   mainLine.appendChild(mainText);
   mainRow.appendChild(mainLine);
   mainBlock.appendChild(mainRow);
@@ -253,7 +184,7 @@ function createPair(pairIdx, textA, textB) {
   sideLine.className = 'line';
   const sideText = document.createElement('span');
   sideText.className = 'text';
-  sideText.textContent = textB + '\\n\\n';
+  sideText.textContent = textB + '\n\n';
   sideLine.appendChild(sideText);
   sideRow.appendChild(sideLine);
   sideBlock.appendChild(sideRow);
@@ -280,8 +211,8 @@ function render() {
 
     const localPrimary = getPairPrimaryIdx(i);
     // Use innerHTML to render HTML content (like <img> tags), not just text
-    mainBlock.querySelector('.text').innerHTML = pairs[i][localPrimary] + '\\n\\n';
-    sideBlock.querySelector('.text').innerHTML = pairs[i][1 - localPrimary] + '\\n\\n';
+    mainBlock.querySelector('.text').innerHTML = pairs[i][localPrimary] + '\n\n';
+    sideBlock.querySelector('.text').innerHTML = pairs[i][1 - localPrimary] + '\n\n';
 
     wrapper.classList.toggle('horizontal', orientation === 'horizontal');
     const isExpanded = !!expandedPairs[i];
@@ -380,8 +311,8 @@ function renderPair(i) {
   const mainBlock = wrapper.querySelector('.block-main');
   const sideBlock = wrapper.querySelector('.block-side');
   const localPrimary = getPairPrimaryIdx(i);
-  mainBlock.querySelector('.text').textContent = pairs[i][localPrimary] + '\\n\\n';
-  sideBlock.querySelector('.text').textContent = pairs[i][1 - localPrimary] + '\\n\\n';
+  mainBlock.querySelector('.text').textContent = pairs[i][localPrimary] + '\n\n';
+  sideBlock.querySelector('.text').textContent = pairs[i][1 - localPrimary] + '\n\n';
   wrapper.classList.toggle('horizontal', orientation === 'horizontal');
   const isExpanded = !!expandedPairs[i];
   wrapper.classList.toggle('expanded', isExpanded);
@@ -618,121 +549,3 @@ setupNavBtn(nextChapterBtn);
 setupNavBtn(prevVolumeBtn);
 setupNavBtn(nextVolumeBtn);
 setupNavBtn(indexBtn);
-"""
-
-# 章节页面完整HTML模板
-CHAPTER_HTML_TEMPLATE = f"""<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>__TITLE__</title>
-<style>
-{COMMON_CSS}
-{CHAPTER_CSS}
-</style>
-</head>
-<body>
-<div class="container">
-  <div class="header">
-      <div>
-      <h2 id="pageTitle" class="title-heading">__TITLE__</h2>
-      <div style="color:var(--muted);font-size:13px">__COUNT__ pairs</div>
-    </div>
-  </div>
-
-  <div class="control-panel" id="controlPanel">
-    <input id="search" class="search" placeholder="Search…" />
-
-    <div class="panel-section two-col">
-      <button id="toggleSync" class="panel-button" aria-pressed="false" aria-controls="content">Sync: OFF</button>
-      <button id="togglePrimaryDoc" class="panel-button" aria-pressed="false" aria-controls="content">Primary: A</button>
-    </div>
-
-    <div class="panel-section two-col">
-      <button id="toggleTheme" class="panel-button" aria-pressed="false">🌙 Dark</button>
-      <button id="toggleOrientation" class="panel-button" aria-pressed="true">Layout: V</button>
-    </div>
-
-    <div class="panel-section">
-      <div class="slider-container">
-        <span class="label-small">Font</span>
-        <input type="range" id="fontSlider" class="slider" min="12" max="28" value="16" />
-        <div class="slider-input-group">
-          <input type="number" id="fontInput" min="12" max="28" value="16" />
-          <span class="unit">px</span>
-        </div>
-      </div>
-      <div class="slider-container">
-        <span class="label-small">Space</span>
-        <input type="range" id="spaceSlider" class="slider" min="0.5" max="3" step="0.1" value="1" />
-        <div class="slider-input-group">
-          <input type="number" id="spaceInput" min="0.5" max="3" step="0.1" value="1" />
-          <span class="unit">x</span>
-        </div>
-      </div>
-      <div class="slider-container">
-        <span class="label-small">Width</span>
-        <input type="range" id="widthSlider" class="slider" min="50" max="100" step="1" value="75" />
-        <div class="slider-input-group">
-          <input type="number" id="widthInput" min="50" max="100" step="1" value="75" />
-          <span class="unit">%</span>
-        </div>
-      </div>
-      <div class="slider-container">
-        <span class="label-small">Pos</span>
-        <input type="range" id="positionSlider" class="slider" min="0" max="100" step="0.1" value="0" aria-label="Scroll position percentage" title="Scroll to position percent" />
-        <div class="slider-input-group">
-          <input type="number" id="posInput" min="0" max="100" step="0.1" value="0" />
-          <span class="unit">%</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel-section two-col">
-      <button id="resetSettings" class="panel-button">↻ Reset</button>
-      <button id="clearSwaps" class="panel-button">✕ Swap</button>
-    </div>
-
-    <div class="panel-section">
-      <div style="display:flex;gap:8px;align-items:center;">
-        <label class="label-small">Click:</label>
-        <select id="clickAction" class="search" style="flex:1;width:auto;">
-          <option value="swap">Swap</option>
-          <option value="expand">Expand</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="panel-section two-col">
-      <button id="toggleSaveProgress" class="panel-button" aria-pressed="true">📖 Progress: ON</button>
-      <button id="clearProgress" class="panel-button">🗑️ Clear Progress</button>
-    </div>
-
-    <button id="togglePanel" class="panel-button" style="width:44px;height:44px;padding:0;margin:0;">−</button>
-  </div>  <div class="progress-bar">
-    <div class="progress-fill" id="progressFill"></div>
-  </div>
-
-  <div id="content" class="col" style="min-height:400px"></div>
-
-  <div class="chapter-nav" id="chapterNav" style="margin-top:12px;display:flex;gap:8px;justify-content:center">
-    <button class="nav-btn" id="prevVolumeBtn" data-href="__PREV_VOLUME_URL__">上一卷</button>
-    <button class="nav-btn" id="prevChapterBtn" data-href="__PREV_CHAPTER_URL__">上一章</button>
-    <button class="nav-btn" id="indexBtn" data-href="__INDEX_URL__">返回书目</button>
-    <button class="nav-btn" id="nextChapterBtn" data-href="__NEXT_CHAPTER_URL__">下一章</button>
-    <button class="nav-btn" id="nextVolumeBtn" data-href="__NEXT_VOLUME_URL__">下一卷</button>
-  </div>
-
-  <div class="footer">Tip: hover a line to highlight the pair. Double-click to mark the pair.</div>
-</div>
-
-<button class="scroll-top-btn" id="scrollTopBtn">↑</button>
-
-<script>
-{COMMON_JS}
-{CHAPTER_JS}
-</script>
-</body>
-</html>
-"""

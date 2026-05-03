@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>__TITLE__</title>
+<style>
+{{COMMON_CSS}}
+{{INDEX_CSS}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h2 class="title-heading">__TITLE__</h2>
+      <div style="color:var(--muted);font-size:13px">__DESCRIPTION__</div>
+    </div>
+  </div>
+
+  <div class="control-panel" id="controlPanel">
+    <input id="search" class="search" placeholder="Search chapters…" />
+
+    <div class="panel-section two-col">
+      <button id="toggleLanguage" class="panel-button" aria-pressed="false">Chinese</button>
+      <button id="toggleTheme" class="panel-button" aria-pressed="false">🌙 Dark</button>
+    </div>
+
+    <div class="panel-section">
+      <div class="slider-container">
+        <span class="label-small">Font</span>
+        <input type="range" id="fontSlider" class="slider" min="12" max="28" value="16" />
+        <div class="slider-input-group">
+          <input type="number" id="fontInput" min="12" max="28" value="16" />
+          <span class="unit">px</span>
+        </div>
+      </div>
+      <div class="slider-container">
+        <span class="label-small">Width</span>
+        <input type="range" id="widthSlider" class="slider" min="50" max="100" step="1" value="75" />
+        <div class="slider-input-group">
+          <input type="number" id="widthInput" min="50" max="100" step="1" value="75" />
+          <span class="unit">%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section two-col">
+      <button id="resetSettings" class="panel-button">↻ Reset</button>
+    </div>
+
+    <button id="togglePanel" class="panel-button" style="width:44px;height:44px;padding:0;margin:0;">−</button>
+  </div>
+
+  <div id="content"></div>
+
+  <div class="footer">Select a chapter to start reading</div>
+</div>
+
+<button class="scroll-top-btn" id="scrollTopBtn">↑</button>
+
+<script>
+{{COMMON_JS}}
+{{INDEX_JS}}
+</script>
+</body>
+</html>
