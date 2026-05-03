@@ -18,38 +18,42 @@
     </div>
   </div>
 
-  <div class="control-panel" id="controlPanel">
-    <input id="search" class="search" placeholder="Search chapters…" />
+  <button class="ctrl-toggle" id="ctrlToggle">⚙</button>
+  <div class="ctrl-panel" id="ctrlPanel">
+    <div class="ctrl-panel-title">Settings</div>
+    <input id="search" class="ctrl-search" placeholder="Search chapters…" />
 
-    <div class="panel-section two-col">
-      <button id="toggleLanguage" class="panel-button" aria-pressed="false">Chinese</button>
-      <button id="toggleTheme" class="panel-button" aria-pressed="false">🌙 Dark</button>
+    <div class="ctrl-row">
+      <span class="ctrl-label" id="langLabel">Chinese</span>
+      <button class="ctrl-switch" id="toggleLanguage"></button>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Dark</span>
+      <button class="ctrl-switch on" id="toggleTheme"></button>
     </div>
 
-    <div class="panel-section">
-      <div class="slider-container">
-        <span class="label-small">Font</span>
-        <input type="range" id="fontSlider" class="slider" min="12" max="28" value="16" />
-        <div class="slider-input-group">
-          <input type="number" id="fontInput" min="12" max="28" value="16" />
-          <span class="unit">px</span>
-        </div>
-      </div>
-      <div class="slider-container">
-        <span class="label-small">Width</span>
-        <input type="range" id="widthSlider" class="slider" min="50" max="100" step="1" value="75" />
-        <div class="slider-input-group">
-          <input type="number" id="widthInput" min="50" max="100" step="1" value="75" />
-          <span class="unit">%</span>
-        </div>
+    <div class="ctrl-divider"></div>
+
+    <div class="ctrl-row">
+      <span class="ctrl-label">Font</span>
+      <div class="ctrl-slider-group">
+        <input type="range" id="fontSlider" class="ctrl-slider" min="12" max="28" value="16" />
+        <input type="number" id="fontInput" class="ctrl-slider-input" min="12" max="28" value="16" />
       </div>
     </div>
-
-    <div class="panel-section two-col">
-      <button id="resetSettings" class="panel-button">↻ Reset</button>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Width</span>
+      <div class="ctrl-slider-group">
+        <input type="range" id="widthSlider" class="ctrl-slider" min="50" max="100" step="1" value="75" />
+        <input type="number" id="widthInput" class="ctrl-slider-input" min="50" max="100" step="1" value="75" />
+      </div>
     </div>
 
-    <button id="togglePanel" class="panel-button" style="width:44px;height:44px;padding:0;margin:0;">−</button>
+    <div class="ctrl-divider"></div>
+
+    <div class="ctrl-row ctrl-row-actions">
+      <button id="resetSettings" class="ctrl-btn">↻ Reset</button>
+    </div>
   </div>
 
   <div id="content"></div>

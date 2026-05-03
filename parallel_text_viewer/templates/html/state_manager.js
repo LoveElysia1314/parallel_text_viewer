@@ -25,7 +25,7 @@ class StateManager {
       
       // 外观
       isDarkTheme: true,
-      panelCollapsed: false,
+      ctrlPanelOpen: false,
       
       // 交互
       clickAction: 'swap',
@@ -111,6 +111,11 @@ class StateManager {
       const data = JSON.parse(saved);
       // 只覆盖已保存的属性，保留默认值
       this.globalState = { ...this.globalState, ...data };
+      
+      // 兼容迁移: 旧版 panelCollapsed → ctrlPanelOpen
+      if ('panelCollapsed' in data && !('ctrlPanelOpen' in data)) {
+        this.globalState.ctrlPanelOpen = data.panelCollapsed;
+      }
       this.emit('load', { fresh: false, data: data });
     } catch (e) {
       console.warn('Failed to load global state:', e);
@@ -220,7 +225,7 @@ class StateManager {
       primaryDocIdx: 0,
       orientation: 'vertical',
       isDarkTheme: true,
-      panelCollapsed: false,
+      ctrlPanelOpen: false,
       clickAction: 'swap',
       searchQuery: '',
       perPairExpanded: {},

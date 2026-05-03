@@ -2,7 +2,7 @@
 let currentLanguage = 'cn'; // 默认中文
 
 // 索引页面专用事件处理
-const toggleLanguage = document.getElementById('toggleLanguage');
+// toggleLanguage 已在 COMMON_JS 中声明
 
 if (toggleLanguage) {
   toggleLanguage.addEventListener('click', () => {
@@ -82,8 +82,10 @@ function filterChapters(query) {
 // 同步UI状态
 function syncIndexToUI() {
   if (toggleLanguage) {
-    toggleLanguage.textContent = currentLanguage === 'cn' ? 'Chinese' : 'English';
-    toggleLanguage.setAttribute('aria-pressed', (currentLanguage === 'en').toString());
+    toggleLanguage.classList.toggle('on', currentLanguage === 'en');
+  }
+  if (langLabel) {
+    langLabel.textContent = currentLanguage === 'cn' ? 'Chinese' : 'English';
   }
 }
 

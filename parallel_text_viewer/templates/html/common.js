@@ -1,8 +1,8 @@
 __STATE_MANAGER_CODE__
 
-// ========== 公共 DOM 元素查询（所有页面共享，统一在此声明，避免重复 const 错误） ==========
-const controlPanel = document.getElementById('controlPanel');
-const togglePanel = document.getElementById('togglePanel');
+// ========== 公共 DOM 元素查询 ==========
+const ctrlToggle = document.getElementById('ctrlToggle');
+const ctrlPanel = document.getElementById('ctrlPanel');
 const resetSettings = document.getElementById('resetSettings');
 const toggleTheme = document.getElementById('toggleTheme');
 const fontSlider = document.getElementById('fontSlider');
@@ -25,21 +25,29 @@ const posInput = document.getElementById('posInput');
 const clickActionSel = document.getElementById('clickAction');
 const progressFill = document.getElementById('progressFill');
 
+// 索引页面专属控件
+const toggleLanguage = document.getElementById('toggleLanguage');
+const langLabel = document.getElementById('langLabel');
+
+// 标签元素（用于同步开关状态）
+const primaryLabel = document.getElementById('primaryLabel');
+const layoutLabel = document.getElementById('layoutLabel');
+
 // ========== 公共变量和初始化 ==========
 let isDarkTheme = true;
-let panelCollapsed = false;
+let ctrlPanelOpen = false;
 // 将保存进度状态集中在 window 对象上，避免在多个模板中重复声明
 window.saveReadingProgress = window.saveReadingProgress ?? true;
 let saveReadingProgress = window.saveReadingProgress;
 let scrollSaveTimer = null;
 
-// 初始化状态管理器放到 DOM 元素查询之后，避免在 block-scoped 变量声明前触发 syncStateToUI 导致 ReferenceError
+// 初始化状态管理器
 stateManager.init();
 
 // 读取全局初始状态并应用
 const __globalInitialState = stateManager.getAll();
 isDarkTheme = __globalInitialState.isDarkTheme;
-panelCollapsed = __globalInitialState.panelCollapsed;
+ctrlPanelOpen = __globalInitialState.ctrlPanelOpen || false;
 window.saveReadingProgress = __globalInitialState.saveReadingProgress;
 saveReadingProgress = window.saveReadingProgress;
 
@@ -136,13 +144,23 @@ if (posInput) {
   });
 }
 
-if (togglePanel) {
-  togglePanel.addEventListener('click', () => {
-    panelCollapsed = !panelCollapsed;
-    stateManager.set('panelCollapsed', panelCollapsed);
+if (ctrlToggle) {
+  ctrlToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    ctrlPanelOpen = !ctrlPanelOpen;
+    stateManager.set('ctrlPanelOpen', ctrlPanelOpen);
     syncStateToUI();
   });
 }
+
+// 点击面板外自动关闭
+document.addEventListener('click', (e) => {
+  if (ctrlPanelOpen && ctrlPanel && !ctrlPanel.contains(e.target) && e.target !== ctrlToggle) {
+    ctrlPanelOpen = false;
+    stateManager.set('ctrlPanelOpen', false);
+    syncStateToUI();
+  }
+});
 
 if (resetSettings) {
   resetSettings.addEventListener('click', () => {
@@ -189,6 +207,14 @@ function syncStateToUI() {
   window.saveReadingProgress = state.saveReadingProgress;
   saveReadingProgress = window.saveReadingProgress;
 
+  // 同步面板展开状态
+  if (ctrlPanel) {
+    ctrlPanel.classList.toggle('open', state.ctrlPanelOpen);
+  }
+  if (ctrlToggle) {
+    ctrlToggle.classList.toggle('active', state.ctrlPanelOpen);
+  }
+
   // 同步滑块和输入值
   if (fontSlider) {
     fontSlider.value = state.fontSize;
@@ -213,50 +239,39 @@ function syncStateToUI() {
     if (posInput) posInput.value = parseFloat(state.panelScrollPercent).toFixed(2);
   }
 
-  // 同步章节专属按钮
+  // 同步开关滑块（使用 .on class）
   if (toggleSync) {
-    toggleSync.textContent = state.syncMode ? 'Sync: ON' : 'Sync: OFF';
-    toggleSync.style.background = state.syncMode ? 'rgba(96,165,250,0.2)' : 'transparent';
-    toggleSync.setAttribute('aria-pressed', state.syncMode.toString());
+    toggleSync.classList.toggle('on', state.syncMode);
   }
 
   if (togglePrimaryDoc) {
-    togglePrimaryDoc.textContent = state.primaryDocIdx === 0 ? 'Primary: A' : 'Primary: B';
-    togglePrimaryDoc.setAttribute('aria-pressed', (state.primaryDocIdx === 0).toString());
+    togglePrimaryDoc.classList.toggle('on', state.primaryDocIdx === 0);
+    if (primaryLabel) primaryLabel.textContent = state.primaryDocIdx === 0 ? 'Primary A' : 'Primary B';
   }
 
   if (toggleOrientation) {
-    toggleOrientation.textContent = state.orientation === 'vertical' ? 'Layout: V' : 'Layout: H';
-    toggleOrientation.setAttribute('aria-pressed', (state.orientation === 'vertical').toString());
+    toggleOrientation.classList.toggle('on', state.orientation === 'vertical');
+    if (layoutLabel) layoutLabel.textContent = state.orientation === 'vertical' ? 'Layout V' : 'Layout H';
   }
 
-  // 同步主题
+  if (toggleLanguage) {
+    toggleLanguage.classList.toggle('on', state.currentLanguage === 'en');
+    if (langLabel) langLabel.textContent = state.currentLanguage === 'cn' ? 'Chinese' : 'English';
+  }
+
+  // 同步主题（用开关表示暗色/亮色）
   if (state.isDarkTheme) {
     document.documentElement.classList.remove('light-theme');
-    if (toggleTheme) toggleTheme.textContent = '🌙 Dark';
   } else {
     document.documentElement.classList.add('light-theme');
-    if (toggleTheme) toggleTheme.textContent = '☀️ Light';
   }
-
   if (toggleTheme) {
-    toggleTheme.setAttribute('aria-pressed', state.isDarkTheme.toString());
-  }
-
-  // 同步面板折叠状态
-  if (controlPanel) {
-    controlPanel.classList.toggle('collapsed', state.panelCollapsed);
-  }
-
-  if (togglePanel) {
-    togglePanel.textContent = state.panelCollapsed ? '☰' : '−';
-    togglePanel.setAttribute('aria-expanded', (!state.panelCollapsed).toString());
+    toggleTheme.classList.toggle('on', state.isDarkTheme);
   }
 
   // 同步阅读进度保存设置
   if (toggleSaveProgress) {
-    toggleSaveProgress.textContent = state.saveReadingProgress ? '📖 Progress: ON' : '📖 Progress: OFF';
-    toggleSaveProgress.setAttribute('aria-pressed', state.saveReadingProgress.toString());
+    toggleSaveProgress.classList.toggle('on', state.saveReadingProgress);
   }
 
   // 同步搜索框

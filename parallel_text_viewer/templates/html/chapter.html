@@ -18,75 +18,78 @@
     </div>
   </div>
 
-  <div class="control-panel" id="controlPanel">
-    <input id="search" class="search" placeholder="Search…" />
+  <button class="ctrl-toggle" id="ctrlToggle">⚙</button>
+  <div class="ctrl-panel" id="ctrlPanel">
+    <div class="ctrl-panel-title">Settings</div>
+    <input id="search" class="ctrl-search" placeholder="Search…" />
 
-    <div class="panel-section two-col">
-      <button id="toggleSync" class="panel-button" aria-pressed="false" aria-controls="content">Sync: OFF</button>
-      <button id="togglePrimaryDoc" class="panel-button" aria-pressed="false" aria-controls="content">Primary: A</button>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Sync</span>
+      <button class="ctrl-switch" id="toggleSync"></button>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label" id="primaryLabel">Primary A</span>
+      <button class="ctrl-switch on" id="togglePrimaryDoc"></button>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label" id="layoutLabel">Layout V</span>
+      <button class="ctrl-switch on" id="toggleOrientation"></button>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Dark</span>
+      <button class="ctrl-switch on" id="toggleTheme"></button>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Progress</span>
+      <button class="ctrl-switch on" id="toggleSaveProgress"></button>
     </div>
 
-    <div class="panel-section two-col">
-      <button id="toggleTheme" class="panel-button" aria-pressed="false">🌙 Dark</button>
-      <button id="toggleOrientation" class="panel-button" aria-pressed="true">Layout: V</button>
-    </div>
+    <div class="ctrl-divider"></div>
 
-    <div class="panel-section">
-      <div class="slider-container">
-        <span class="label-small">Font</span>
-        <input type="range" id="fontSlider" class="slider" min="12" max="28" value="16" />
-        <div class="slider-input-group">
-          <input type="number" id="fontInput" min="12" max="28" value="16" />
-          <span class="unit">px</span>
-        </div>
-      </div>
-      <div class="slider-container">
-        <span class="label-small">Space</span>
-        <input type="range" id="spaceSlider" class="slider" min="0.5" max="3" step="0.1" value="1" />
-        <div class="slider-input-group">
-          <input type="number" id="spaceInput" min="0.5" max="3" step="0.1" value="1" />
-          <span class="unit">x</span>
-        </div>
-      </div>
-      <div class="slider-container">
-        <span class="label-small">Width</span>
-        <input type="range" id="widthSlider" class="slider" min="50" max="100" step="1" value="75" />
-        <div class="slider-input-group">
-          <input type="number" id="widthInput" min="50" max="100" step="1" value="75" />
-          <span class="unit">%</span>
-        </div>
-      </div>
-      <div class="slider-container">
-        <span class="label-small">Pos</span>
-        <input type="range" id="positionSlider" class="slider" min="0" max="100" step="0.1" value="0" aria-label="Scroll position percentage" title="Scroll to position percent" />
-        <div class="slider-input-group">
-          <input type="number" id="posInput" min="0" max="100" step="0.1" value="0" />
-          <span class="unit">%</span>
-        </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Font</span>
+      <div class="ctrl-slider-group">
+        <input type="range" id="fontSlider" class="ctrl-slider" min="12" max="28" value="16" />
+        <input type="number" id="fontInput" class="ctrl-slider-input" min="12" max="28" value="16" />
       </div>
     </div>
-
-    <div class="panel-section two-col">
-      <button id="resetSettings" class="panel-button">↻ Reset</button>
-      <button id="clearSwaps" class="panel-button">✕ Swap</button>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Space</span>
+      <div class="ctrl-slider-group">
+        <input type="range" id="spaceSlider" class="ctrl-slider" min="0.5" max="3" step="0.1" value="1" />
+        <input type="number" id="spaceInput" class="ctrl-slider-input" min="0.5" max="3" step="0.1" value="1" />
+      </div>
     </div>
-
-    <div class="panel-section">
-      <div style="display:flex;gap:8px;align-items:center;">
-        <label class="label-small">Click:</label>
-        <select id="clickAction" class="search" style="flex:1;width:auto;">
-          <option value="swap">Swap</option>
-          <option value="expand">Expand</option>
-        </select>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Width</span>
+      <div class="ctrl-slider-group">
+        <input type="range" id="widthSlider" class="ctrl-slider" min="50" max="100" step="1" value="75" />
+        <input type="number" id="widthInput" class="ctrl-slider-input" min="50" max="100" step="1" value="75" />
+      </div>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Pos</span>
+      <div class="ctrl-slider-group">
+        <input type="range" id="positionSlider" class="ctrl-slider" min="0" max="100" step="0.1" value="0" />
+        <input type="number" id="posInput" class="ctrl-slider-input" min="0" max="100" step="0.01" value="0" />
       </div>
     </div>
 
-    <div class="panel-section two-col">
-      <button id="toggleSaveProgress" class="panel-button" aria-pressed="true">📖 Progress: ON</button>
-      <button id="clearProgress" class="panel-button">🗑️ Clear Progress</button>
+    <div class="ctrl-divider"></div>
+
+    <div class="ctrl-row">
+      <span class="ctrl-label">Click</span>
+      <select id="clickAction" class="ctrl-select">
+        <option value="swap">Swap</option>
+        <option value="expand">Expand</option>
+      </select>
     </div>
 
-    <button id="togglePanel" class="panel-button" style="width:44px;height:44px;padding:0;margin:0;">−</button>
+    <div class="ctrl-row ctrl-row-actions">
+      <button id="resetSettings" class="ctrl-btn">↻ Reset</button>
+      <button id="clearSwaps" class="ctrl-btn">✕ Swap</button>
+      <button id="clearProgress" class="ctrl-btn">🗑️ Clear</button>
+    </div>
   </div>  <div class="progress-bar">
     <div class="progress-fill" id="progressFill"></div>
   </div>

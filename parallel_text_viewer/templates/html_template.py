@@ -156,7 +156,7 @@ body{font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Rob
         <span class="label-small">Pos</span>
         <input type="range" id="positionSlider" class="slider" min="0" max="100" step="0.1" value="0" aria-label="Scroll position percentage" title="Scroll to position percent" />
         <div class="slider-input-group">
-          <input type="number" id="posInput" min="0" max="100" step="0.1" value="0" />
+          <input type="number" id="posInput" min="0" max="100" step="0.01" value="0" />
           <span class="unit">%</span>
         </div>
       </div>

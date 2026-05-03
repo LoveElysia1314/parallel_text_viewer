@@ -129,16 +129,14 @@ window.addEventListener('scroll', () => {
   scrollTopBtn.classList.toggle('show', window.scrollY > 300);
   updateProgress();
   updatePositionFromCenter();
+  // scrollTop 的保存由 common.js 的 scroll 处理器负责
+  // 此处只需保存 panelScrollPercent（首次加载恢复位置用）
   if (saveReadingProgress) {
-    if (scrollSaveTimer) clearTimeout(scrollSaveTimer);
-    scrollSaveTimer = setTimeout(() => {
-      stateManager.set('scrollTop', Math.round(window.scrollY));
-      // 同步 panelScrollPercent，使 pos 双向联动
-      if (typeof updatePositionFromCenter === 'function') {
-        const idx = findClosestVisibleIndexToCenter();
-        const pct = indexToPercent(idx);
-        stateManager.set('panelScrollPercent', pct);
-      }
+    if (window._posScrollTimer) clearTimeout(window._posScrollTimer);
+    window._posScrollTimer = setTimeout(() => {
+      const idx = findClosestVisibleIndexToCenter();
+      const pct = indexToPercent(idx);
+      stateManager.set('panelScrollPercent', pct);
     }, 200);
   }
 });
