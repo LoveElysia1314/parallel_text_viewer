@@ -684,6 +684,7 @@ function updatePositionFromCenter() {
   const pct = indexToPercent(idx);
   positionSlider.value = Number(pct).toFixed(1);
   posInput.value = Number(pct).toFixed(2);
+  stateManager.set('panelScrollPercent', pct);
 }
 
 function goToPercent(pct) {

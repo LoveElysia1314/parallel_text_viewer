@@ -387,6 +387,8 @@ function updatePositionFromCenter() {
   const pct = indexToPercent(idx);
   positionSlider.value = Number(pct).toFixed(1);
   if (posInput) posInput.value = Number(pct).toFixed(2);
+  // 同步到 stateManager，确保面板打开时 syncStateToUI 读到正确值
+  stateManager.set('panelScrollPercent', pct);
 }
 
 function goToPercent(pct) {
