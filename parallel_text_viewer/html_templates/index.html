@@ -1,71 +1,111 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>__TITLE__</title>
-<style>
-{{COMMON_CSS}}
-{{INDEX_CSS}}
-</style>
-</head>
-<body>
-<div class="container">
-  <div class="header">
-    <div>
-      <h2 class="title-heading">__TITLE__</h2>
-      <div style="color:var(--muted);font-size:13px">__DESCRIPTION__</div>
-    </div>
-  </div>
-
-  <button class="ctrl-toggle" id="ctrlToggle">⚙</button>
-  <div class="ctrl-panel" id="ctrlPanel">
-    <div class="ctrl-panel-title">Settings</div>
-    <input id="search" class="ctrl-search" placeholder="Search chapters…" />
-
-    <div class="ctrl-row">
-      <span class="ctrl-label" id="langLabel">Chinese</span>
-      <button class="ctrl-switch" id="toggleLanguage"></button>
-    </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">Dark</span>
-      <button class="ctrl-switch on" id="toggleTheme"></button>
-    </div>
-
-    <div class="ctrl-divider"></div>
-
-    <div class="ctrl-row">
-      <span class="ctrl-label">Font</span>
-      <div class="ctrl-slider-group">
-        <input type="range" id="fontSlider" class="ctrl-slider" min="12" max="28" value="16" />
-        <input type="number" id="fontInput" class="ctrl-slider-input" min="12" max="28" value="16" />
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>__TITLE__</title>
+    <style>
+      {{COMMON_CSS}}
+      {{INDEX_CSS}}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div>
+          <h2 class="title-heading">__TITLE__</h2>
+          <div style="color: var(--muted); font-size: 13px">
+            __DESCRIPTION__
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">Width</span>
-      <div class="ctrl-slider-group">
-        <input type="range" id="widthSlider" class="ctrl-slider" min="50" max="100" step="1" value="75" />
-        <input type="number" id="widthInput" class="ctrl-slider-input" min="50" max="100" step="1" value="75" />
+
+      <button class="ctrl-toggle" id="ctrlToggle">⚙</button>
+      <div class="ctrl-panel" id="ctrlPanel">
+        <div class="ctrl-panel-title">Settings</div>
+        <input id="search" class="ctrl-search" placeholder="Search chapters…" />
+
+        <div class="ctrl-row">
+          <span class="ctrl-label" id="langLabel">Chinese</span>
+          <button class="ctrl-switch" id="toggleLanguage"></button>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Dark</span>
+          <button class="ctrl-switch on" id="toggleTheme"></button>
+        </div>
+
+        <div class="ctrl-divider"></div>
+
+        <div class="ctrl-row">
+          <span class="ctrl-label">Font</span>
+          <div class="ctrl-slider-group">
+            <input
+              type="range"
+              id="fontSlider"
+              class="ctrl-slider"
+              min="12"
+              max="28"
+              value="16"
+            />
+            <input
+              type="number"
+              id="fontInput"
+              class="ctrl-slider-input"
+              min="12"
+              max="28"
+              value="16"
+            />
+          </div>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Width</span>
+          <div class="ctrl-slider-group">
+            <input
+              type="range"
+              id="widthSlider"
+              class="ctrl-slider"
+              min="50"
+              max="100"
+              step="1"
+              value="75"
+            />
+            <input
+              type="number"
+              id="widthInput"
+              class="ctrl-slider-input"
+              min="50"
+              max="100"
+              step="1"
+              value="75"
+            />
+          </div>
+        </div>
+
+        <div class="ctrl-divider"></div>
+
+        <div class="ctrl-row ctrl-row-actions">
+          <button id="resetSettings" class="ctrl-btn">↻ Reset</button>
+        </div>
       </div>
+
+      <div id="content"></div>
+
+      <div class="footer">点击作品或卷标题展开目录，点击章节开始阅读</div>
     </div>
 
-    <div class="ctrl-divider"></div>
+    <button class="scroll-top-btn" id="scrollTopBtn">↑</button>
 
-    <div class="ctrl-row ctrl-row-actions">
-      <button id="resetSettings" class="ctrl-btn">↻ Reset</button>
-    </div>
-  </div>
-
-  <div id="content"></div>
-
-  <div class="footer">Select a chapter to start reading</div>
-</div>
-
-<button class="scroll-top-btn" id="scrollTopBtn">↑</button>
-
-<script>
-{{COMMON_JS}}
-{{INDEX_JS}}
-</script>
-</body>
+    <script>
+      {
+        {
+          COMMON_JS;
+        }
+      }
+      {
+        {
+          INDEX_JS;
+        }
+      }
+    </script>
+  </body>
 </html>

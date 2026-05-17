@@ -508,6 +508,9 @@ class BookIndexGenerator:
 
             index_data.append(work_info)
 
-        html_content = self.renderer.render_index(index_data)
+        # 获取书目名称（meta.title）
+        catalog_title = self.config.get("meta", {}).get("title", "书目目录")
+
+        html_content = self.renderer.render_index(index_data, catalog_title=catalog_title)
         index_path = output_dir / "index.html"
         index_path.write_text(html_content, encoding="utf-8")

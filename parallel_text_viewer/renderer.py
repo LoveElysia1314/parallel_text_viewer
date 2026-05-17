@@ -138,17 +138,34 @@ class TemplateRenderer:
 
         return html_out
 
-    def render_index(self, index_data: List[Dict[str, Any]]) -> str:
-        """渲染索引模板"""
+    def render_index(self, index_data: List[Dict[str, Any]], catalog_title: str = "书目目录") -> str:
+        """渲染索引模板（书目目录）
+
+        Args:
+            index_data: 作品/卷/章 层级数据
+            catalog_title: 书目/文库名称（如 meta.title），显示在页面标题中
+        """
         index_json = json.dumps(index_data, ensure_ascii=False, sort_keys=True)
         doc_id = hashlib.sha1(index_json.encode("utf-8")).hexdigest()[:10]
 
         state_manager_code = get_state_manager_code(doc_id)
         index_data_json = json.dumps(index_data, ensure_ascii=False)
 
+        # 统计作品/卷/章节数量
+        total_works = len(index_data)
+        total_volumes = sum(len(w.get("volumes", {})) for w in index_data)
+        total_chapters = sum(
+            len(v.get("chapters", []))
+            for w in index_data
+            for v in w.get("volumes", {}).values()
+        )
+
         html_out = self._assemble_index_html(state_manager_code)
-        html_out = html_out.replace("__TITLE__", "Index")
-        html_out = html_out.replace("__DESCRIPTION__", f"{len(index_data)} works")
+        html_out = html_out.replace("__TITLE__", html_module.escape(catalog_title))
+        html_out = html_out.replace(
+            "__DESCRIPTION__",
+            f"{html_module.escape(catalog_title)} — 共 {total_works} 部作品 · {total_volumes} 卷 · {total_chapters} 章"
+        )
         html_out = html_out.replace("__INDEX_DATA__", index_data_json)
 
         return html_out
