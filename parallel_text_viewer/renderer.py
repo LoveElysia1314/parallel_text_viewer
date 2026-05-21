@@ -111,9 +111,11 @@ class TemplateRenderer:
         orientation: str,
         nav_html: str,
         nav_info: Optional[Dict] = None,
+        page_title: Optional[str] = None,
     ) -> str:
         """渲染章节模板（包含导航）"""
         html_out = self._assemble_chapter_html(state_manager_code)
+        html_out = html_out.replace("__PAGE_TITLE__", html_module.escape(page_title or title))
         html_out = html_out.replace("__TITLE__", html_module.escape(title))
         html_out = html_out.replace("__COUNT__", str(count))
         html_out = html_out.replace("__PAIRS_JSON__", pairs_json)

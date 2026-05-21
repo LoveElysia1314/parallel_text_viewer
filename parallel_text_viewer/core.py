@@ -5,12 +5,11 @@
 """
 
 import json
-import csv
 import re
 import logging
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
-from typing import Optional, List, Tuple, Dict, Any, Callable
+from typing import Optional, List, Tuple, Dict, Any
 from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
@@ -528,10 +527,20 @@ class StandardConfigGenerator(ConfigGenerator):
         config = self._create_base_config(options)
         working_dir = Path(options.working_dir)
         catalog_data = self._load_catalog(options.book_id, working_dir)
+
+        # 从 catalog 获取真实标题和作者信息
+        if catalog_data:
+            if catalog_data.get("title"):
+                config.meta.title = catalog_data["title"]
+            if catalog_data.get("author"):
+                config.meta.authors = [catalog_data["author"]] if isinstance(catalog_data["author"], str) else catalog_data["author"]
+
         structure_type = self._detect_structure_type(working_dir)
         config.meta.structure.type = structure_type
         if structure_type == "standard":
             self._scan_standard_structure(working_dir, catalog_data)
+        elif structure_type == "repaired":
+            self._scan_repaired_structure(working_dir, catalog_data)
         elif structure_type == "flat":
             self._scan_flat_structure(working_dir, catalog_data)
         return config
@@ -552,12 +561,94 @@ class StandardConfigGenerator(ConfigGenerator):
         if vol_dirs:
             for vol_dir in vol_dirs:
                 lang_dirs = list(vol_dir.glob("*"))
-                if any(d.is_dir() and d.name in ["cn", "en", "zh", "en-US"] for d in lang_dirs):
+                lang_names = [d.name for d in lang_dirs if d.is_dir()]
+                if any(name in ["cn", "en", "zh", "en-US"] for name in lang_names):
                     return "standard"
+                if "repaired" in lang_names:
+                    return "repaired"
         flat_files = list(working_dir.glob("ch_*_*.md"))
         if flat_files:
             return "flat"
         return "standard"
+
+    def _scan_repaired_structure(
+        self, working_dir: Path, catalog_data: Optional[Dict] = None
+    ) -> None:
+        """扫描 repaired 结构：vol_XXX/repaired/*.{target,source}.md
+
+        管线产出两种文件：
+          - *.target.md = 中文（译文）
+          - *.source.md = 英文（原文）
+        只使用 repaired/ 目录（raw/ 是对齐前文本，不用于生成阅读器）
+        """
+        work = self._add_work()
+        if catalog_data and catalog_data.get("title"):
+            work.title = catalog_data["title"]
+        vol_pattern = re.compile(r"vol_(\d+)")
+        vol_dirs = sorted(
+            [d for d in working_dir.iterdir() if d.is_dir() and vol_pattern.match(d.name)],
+            key=lambda d: int(vol_pattern.match(d.name).group(1)),
+        )
+        catalog_map = {}
+        if catalog_data:
+            for vol_idx, vol_info in enumerate(catalog_data.get("volumes", [])):
+                vol_idx_padded = str(vol_idx + 1).zfill(3)
+                catalog_map[vol_idx_padded] = {}
+                for ch_info in vol_info.get("chapters", []):
+                    url = ch_info.get("url", "")
+                    ch_id_match = re.search(r"/(\d+)\.htm", url)
+                    if ch_id_match:
+                        ch_id = ch_id_match.group(1)
+                        catalog_map[vol_idx_padded][ch_id] = {
+                            "name": ch_info.get("chapter_name", ""),
+                            "vol_name": vol_info.get("volume_name", f"Volume {vol_idx + 1}"),
+                        }
+        for vol_dir in vol_dirs:
+            vol_match = vol_pattern.match(vol_dir.name)
+            vol_num = int(vol_match.group(1))
+            vol_id = str(vol_num).zfill(3)
+            vol_title = vol_dir.name
+            if vol_id in catalog_map and catalog_map[vol_id]:
+                first_val = next(iter(catalog_map[vol_id].values()))
+                if "vol_name" in first_val:
+                    vol_title = first_val["vol_name"]
+            volume = self._add_volume(work, vol_id, vol_title=vol_title)
+
+            # 只使用 repaired/ 目录
+            repaired_dir = vol_dir / "repaired"
+            if not repaired_dir.is_dir():
+                # 无 repaired/ 目录的卷跳过（raw/ 是对齐前文本，不使用）
+                continue
+
+            # 收集所有配对文件
+            target_files = {}
+            source_files = {}
+            for f in repaired_dir.glob("*.target.md"):
+                ch_match = re.match(r"(\d+)", f.stem)  # stem = "107321.target"
+                if ch_match:
+                    target_files[ch_match.group(1)] = f
+            for f in repaired_dir.glob("*.source.md"):
+                ch_match = re.match(r"(\d+)", f.stem)
+                if ch_match:
+                    source_files[ch_match.group(1)] = f
+
+            all_ids = sorted(set(target_files.keys()) | set(source_files.keys()), key=int)
+            for ch_id in all_ids:
+                target_file = target_files.get(ch_id)
+                source_file = source_files.get(ch_id)
+
+                ch_title = ch_id
+                if vol_id in catalog_map and ch_id in catalog_map[vol_id]:
+                    ch_title = catalog_map[vol_id][ch_id].get("name", ch_title)
+
+                main_rel = str(target_file.relative_to(working_dir)) if target_file else None
+                side_rel = str(source_file.relative_to(working_dir)) if source_file else None
+
+                if main_rel or side_rel:
+                    self._add_chapter(
+                        volume, ch_id, ch_title=ch_title,
+                        main_file=main_rel, side_file=side_rel
+                    )
 
     def _scan_standard_structure(
         self, working_dir: Path, catalog_data: Optional[Dict] = None
@@ -568,6 +659,9 @@ class StandardConfigGenerator(ConfigGenerator):
             [d for d in working_dir.iterdir() if d.is_dir() and vol_pattern.match(d.name)],
             key=lambda d: int(vol_pattern.match(d.name).group(1)),
         )
+        # 使用 catalog 的真实标题作为作品名
+        if catalog_data and catalog_data.get("title"):
+            work.title = catalog_data["title"]
         catalog_map = {}
         if catalog_data:
             for vol_idx, vol_info in enumerate(catalog_data.get("volumes", [])):
@@ -619,6 +713,8 @@ class StandardConfigGenerator(ConfigGenerator):
 
     def _scan_flat_structure(self, working_dir: Path, catalog_data: Optional[Dict] = None) -> None:
         work = self._add_work()
+        if catalog_data and catalog_data.get("title"):
+            work.title = catalog_data["title"]
         volume = self._add_volume(work, "001", vol_title="Volume 001")
         ch_pattern = re.compile(r"ch_(\d+)_")
         ch_files = {}

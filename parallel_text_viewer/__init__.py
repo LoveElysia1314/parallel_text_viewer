@@ -8,7 +8,7 @@ __version__ = "0.7.0"
 __author__ = "LoveElysia1314"
 
 from .generators import SingleFileGenerator, BookIndexGenerator, GeneratorFactory
-from .core import parse_lines, validate_line_counts
+from .core import parse_lines, validate_line_counts, build_from_data, BuildOptions
 
 __all__ = [
     "SingleFileGenerator",
@@ -16,4 +16,6 @@ __all__ = [
     "GeneratorFactory",
     "parse_lines",
     "validate_line_counts",
+    "build_from_data",
+    "BuildOptions",
 ]

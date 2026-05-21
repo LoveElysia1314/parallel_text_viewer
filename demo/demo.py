@@ -38,7 +38,7 @@ def main():
     size_kb = output_file.stat().st_size / 1024
     print("✅ 演示生成完成!")
     print(f"📄 输出文件: {output_file.name}")
-    print(".1f")
+    print(f"📏 文件大小: {size_kb:.1f} KB")
     print("🌐 用浏览器打开查看")
 
 

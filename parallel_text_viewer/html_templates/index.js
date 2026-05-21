@@ -105,8 +105,21 @@ function renderIndex() {
       volEntries.length,
       totalChapters,
       isWorkCollapsed,
+      workData.author,
+      workData.description,
+      workData.book_id,
     );
     workEl.appendChild(workHeader);
+
+    // 作品简介（展开时显示）
+    if (!isWorkCollapsed && (workData.author || workData.description)) {
+      const metaEl = createWorkMeta(
+        workData.author,
+        workData.description,
+        workData.book_id,
+      );
+      workEl.appendChild(metaEl);
+    }
 
     // 作品内容体
     const workBody = document.createElement("div");
@@ -152,7 +165,15 @@ function renderIndex() {
 }
 
 // ── 创建作品头部 DOM ──
-function createWorkHeader(title, volCount, chCount, isCollapsed) {
+function createWorkHeader(
+  title,
+  volCount,
+  chCount,
+  isCollapsed,
+  author,
+  description,
+  bookId,
+) {
   const header = document.createElement("div");
   header.className = "work-header";
   header.dataset.workTitle = title;
@@ -171,6 +192,39 @@ function createWorkHeader(title, volCount, chCount, isCollapsed) {
 
   header.append(icon, titleEl, meta);
   return header;
+}
+
+// ── 创建作品元信息 DOM ──
+function createWorkMeta(author, description, bookId) {
+  const container = document.createElement("div");
+  container.className = "work-meta-info";
+
+  const info = document.createElement("div");
+  info.className = "work-meta-content";
+
+  if (author) {
+    const authorEl = document.createElement("div");
+    authorEl.className = "work-author";
+    authorEl.textContent = `✎ ${author}`;
+    info.appendChild(authorEl);
+  }
+
+  if (description) {
+    const descEl = document.createElement("div");
+    descEl.className = "work-description";
+    descEl.textContent = description;
+    info.appendChild(descEl);
+  }
+
+  if (bookId) {
+    const idEl = document.createElement("div");
+    idEl.className = "work-book-id";
+    idEl.textContent = `#${bookId}`;
+    info.appendChild(idEl);
+  }
+
+  container.appendChild(info);
+  return container;
 }
 
 // ── 创建卷头部 DOM ──
@@ -263,6 +317,15 @@ function syncIndexToUI() {
     );
   }
 }
+
+// ── 更新页脚信息 ──
+(function updateFooter() {
+  const bookCountEl = document.getElementById("bookCount");
+  if (bookCountEl) {
+    const count = (__INDEX_DATA__ || []).length;
+    bookCountEl.textContent = `共 ${count} 部作品`;
+  }
+})();
 
 // ── 初始渲染 ──
 renderIndex();

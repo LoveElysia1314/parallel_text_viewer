@@ -190,6 +190,36 @@
 }
 
 /* ═══════════════════════════════════════════════
+   作品元信息
+   ═══════════════════════════════════════════════ */
+.work-meta-info {
+  padding: 0 18px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.work-meta-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: baseline;
+  font-size: 13px;
+}
+.work-author {
+  color: var(--accent);
+  font-weight: 500;
+}
+.work-description {
+  color: var(--muted);
+  flex: 1;
+  min-width: 200px;
+  line-height: 1.5;
+}
+.work-book-id {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 11px;
+  font-family: monospace;
+}
+
+/* ═══════════════════════════════════════════════
    空状态
    ═══════════════════════════════════════════════ */
 .empty-state {

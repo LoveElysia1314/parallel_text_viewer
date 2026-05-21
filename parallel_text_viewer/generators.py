@@ -6,13 +6,14 @@ HTML 生成器
 
 import html as html_module
 import json
+import os
 import hashlib
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
 from .core import parse_lines, parse_md_lines, validate_line_counts
 from .renderer import TemplateRenderer
-from .utils import ensure_dir, compute_relative_image_path, resolve_image_path
+from .utils import ensure_dir
 
 # ═══════════════════════════════════════════════════════════
 # GeneratorFactory
@@ -138,8 +139,6 @@ class SingleFileGenerator:
         state_manager_code = get_state_manager_code(doc_id)
 
         # 渲染模板
-        import os
-
         if os.environ.get("PTV_DEBUG_COUNTS") == "1":
             print(
                 f"DEBUG COUNTS (single_file): main={len(main_lines)} side={len(side_lines)} pairs={len(pairs)}"
@@ -199,6 +198,7 @@ class BookIndexGenerator:
 
         # 读取 catalog 以获取实际的作品标题（如果存在）
         self.catalog_data = self._load_catalog()
+        self._catalog_full = self.catalog_data
 
     def generate(self, output_dir: Path) -> None:
         """
@@ -437,7 +437,6 @@ class BookIndexGenerator:
 
         pairs_json = json.dumps(pairs, ensure_ascii=False)
         doc_id = hashlib.sha1(pairs_json.encode("utf-8")).hexdigest()[:10]
-        titles_json = json.dumps({"a": title or main_file.stem, "b": ""}, ensure_ascii=False)
         state_manager_code = get_state_manager_code(doc_id)
 
         # 修正导航URL - 使相对路径正确
@@ -449,24 +448,31 @@ class BookIndexGenerator:
                     rel_path = target_path.relative_to(output_path.parent)
                     nav_info[key] = rel_path.as_posix()
                 except Exception:
-                    import os
-
                     nav_info[key] = os.path.relpath(
                         str(output_dir / url), start=str(output_path.parent)
                     ).replace("\\", "/")
 
         nav_html = self._generate_nav_html(nav_info)
 
-        import os as os_mod
-
-        if os_mod.environ.get("PTV_DEBUG_COUNTS") == "1":
+        if os.environ.get("PTV_DEBUG_COUNTS") == "1":
             print(
                 f"DEBUG COUNTS (book_index): main={len(main_lines)} side={len(side_lines)} pairs={len(pairs)} file={str(main_file)}"
             )
 
-        chapter_title = chapter.get("title", title or main_file.stem)
+        chapter_title = chapter.get("title", title or Path(main_file).stem)
+        # 构建完整页面标题：作品名 - 卷名 - 章节名
+        work_title = nav_info.get("work_title", "")
+        volume_title = nav_info.get("volume_title", "")
+        page_title = f"{chapter_title} - {volume_title} - {work_title}"
+
+        # titles_json: 用于前端语言切换时显示，两个语言都用章节标题
+        main_title = title or main_file.stem if title else chapter_title
+        side_title = chapter_title  # 侧栏用章节标题（无英文标题时）
+        titles_json = json.dumps({"a": main_title, "b": side_title}, ensure_ascii=False)
+
         html_content = self.renderer.render_chapter(
             title=chapter_title,
+            page_title=page_title,
             count=len(pairs),
             pairs_json=pairs_json,
             titles_json=titles_json,
@@ -482,11 +488,31 @@ class BookIndexGenerator:
         """生成索引 HTML"""
         index_data = []
 
+        meta = self.config.get("meta", {})
+        catalog_title = meta.get("title", "书目目录")
+
         for work in self.config.get("works", []):
             work_info = {
                 "title": work.get("title", "Unknown"),
                 "volumes": {},
             }
+
+            # 从 meta 和 catalog 补充作品信息
+            authors = meta.get("authors", [])
+            if authors:
+                work_info["author"] = ", ".join(authors)
+            work_info["book_id"] = meta.get("book_id", "")
+
+            # 尝试从 catalog JSON 获取详细描述
+            if hasattr(self, '_catalog_full'):
+                cat = self._catalog_full
+                if cat and cat.get("title") == work_info["title"]:
+                    if cat.get("author"):
+                        work_info["author"] = cat["author"]
+                    if cat.get("description"):
+                        work_info["description"] = cat["description"]
+                    if cat.get("cover"):
+                        work_info["cover"] = cat["cover"]
 
             for volume in work.get("volumes", []):
                 vol_id = volume.get("id", "vol_001")
@@ -507,9 +533,6 @@ class BookIndexGenerator:
                 work_info["volumes"][vol_id] = vol_info
 
             index_data.append(work_info)
-
-        # 获取书目名称（meta.title）
-        catalog_title = self.config.get("meta", {}).get("title", "书目目录")
 
         html_content = self.renderer.render_index(index_data, catalog_title=catalog_title)
         index_path = output_dir / "index.html"

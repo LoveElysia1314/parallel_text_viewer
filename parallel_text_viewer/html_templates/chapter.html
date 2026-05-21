@@ -1,117 +1,227 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>__TITLE__</title>
-<style>
-{{COMMON_CSS}}
-{{CHAPTER_CSS}}
-</style>
-</head>
-<body>
-<div class="container">
-  <div class="header">
-      <div>
-      <h2 id="pageTitle" class="title-heading">__TITLE__</h2>
-      <div style="color:var(--muted);font-size:13px">__COUNT__ pairs</div>
-    </div>
-  </div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>__PAGE_TITLE__</title>
+    <style>
+      {{COMMON_CSS}}
+      {{CHAPTER_CSS}}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div>
+          <h2 id="pageTitle" class="title-heading">__TITLE__</h2>
+          <div style="color: var(--muted); font-size: 13px">
+            __COUNT__ pairs
+          </div>
+        </div>
+      </div>
 
-  <button class="ctrl-toggle" id="ctrlToggle">⚙</button>
-  <div class="ctrl-panel" id="ctrlPanel">
-    <div class="ctrl-panel-title">Settings</div>
-    <input id="search" class="ctrl-search" placeholder="Search…" />
+      <button class="ctrl-toggle" id="ctrlToggle">⚙</button>
+      <div class="ctrl-panel" id="ctrlPanel">
+        <div class="ctrl-panel-title">Settings</div>
+        <input id="search" class="ctrl-search" placeholder="Search…" />
 
-    <div class="ctrl-row">
-      <span class="ctrl-label">Sync</span>
-      <button class="ctrl-switch" id="toggleSync"></button>
-    </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label" id="primaryLabel">Primary A</span>
-      <button class="ctrl-switch on" id="togglePrimaryDoc"></button>
-    </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label" id="layoutLabel">Layout V</span>
-      <button class="ctrl-switch on" id="toggleOrientation"></button>
-    </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">Dark</span>
-      <button class="ctrl-switch on" id="toggleTheme"></button>
-    </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">Progress</span>
-      <button class="ctrl-switch on" id="toggleSaveProgress"></button>
-    </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Sync</span>
+          <button class="ctrl-switch" id="toggleSync"></button>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label" id="primaryLabel">Primary A</span>
+          <button class="ctrl-switch on" id="togglePrimaryDoc"></button>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label" id="layoutLabel">Layout V</span>
+          <button class="ctrl-switch on" id="toggleOrientation"></button>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Dark</span>
+          <button class="ctrl-switch on" id="toggleTheme"></button>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Progress</span>
+          <button class="ctrl-switch on" id="toggleSaveProgress"></button>
+        </div>
 
-    <div class="ctrl-divider"></div>
+        <div class="ctrl-divider"></div>
 
-    <div class="ctrl-row">
-      <span class="ctrl-label">Font</span>
-      <div class="ctrl-slider-group">
-        <input type="range" id="fontSlider" class="ctrl-slider" min="12" max="28" value="16" />
-        <input type="number" id="fontInput" class="ctrl-slider-input" min="12" max="28" value="16" />
+        <div class="ctrl-row">
+          <span class="ctrl-label">Font</span>
+          <div class="ctrl-slider-group">
+            <input
+              type="range"
+              id="fontSlider"
+              class="ctrl-slider"
+              min="12"
+              max="28"
+              value="16"
+            />
+            <input
+              type="number"
+              id="fontInput"
+              class="ctrl-slider-input"
+              min="12"
+              max="28"
+              value="16"
+            />
+          </div>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Space</span>
+          <div class="ctrl-slider-group">
+            <input
+              type="range"
+              id="spaceSlider"
+              class="ctrl-slider"
+              min="0.5"
+              max="3"
+              step="0.1"
+              value="1"
+            />
+            <input
+              type="number"
+              id="spaceInput"
+              class="ctrl-slider-input"
+              min="0.5"
+              max="3"
+              step="0.1"
+              value="1"
+            />
+          </div>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Width</span>
+          <div class="ctrl-slider-group">
+            <input
+              type="range"
+              id="widthSlider"
+              class="ctrl-slider"
+              min="50"
+              max="100"
+              step="1"
+              value="75"
+            />
+            <input
+              type="number"
+              id="widthInput"
+              class="ctrl-slider-input"
+              min="50"
+              max="100"
+              step="1"
+              value="75"
+            />
+          </div>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Pos</span>
+          <div class="ctrl-slider-group">
+            <input
+              type="range"
+              id="positionSlider"
+              class="ctrl-slider"
+              min="0"
+              max="100"
+              step="0.1"
+              value="0"
+            />
+            <input
+              type="number"
+              id="posInput"
+              class="ctrl-slider-input"
+              min="0"
+              max="100"
+              step="0.01"
+              value="0"
+            />
+          </div>
+        </div>
+
+        <div class="ctrl-divider"></div>
+
+        <div class="ctrl-row">
+          <span class="ctrl-label">Click</span>
+          <select id="clickAction" class="ctrl-select">
+            <option value="swap">Swap</option>
+            <option value="expand">Expand</option>
+          </select>
+        </div>
+
+        <div class="ctrl-row ctrl-row-actions">
+          <button id="resetSettings" class="ctrl-btn">↻ Reset</button>
+          <button id="clearSwaps" class="ctrl-btn">✕ Swap</button>
+          <button id="clearProgress" class="ctrl-btn">🗑️ Clear</button>
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <div id="content" class="col" style="min-height: 400px"></div>
+
+      <div
+        class="chapter-nav"
+        id="chapterNav"
+        style="
+          margin-top: 12px;
+          display: flex;
+          gap: 8px;
+          justify-content: center;
+        "
+      >
+        <button
+          class="nav-btn"
+          id="prevVolumeBtn"
+          data-href="__PREV_VOLUME_URL__"
+        >
+          上一卷
+        </button>
+        <button
+          class="nav-btn"
+          id="prevChapterBtn"
+          data-href="__PREV_CHAPTER_URL__"
+        >
+          上一章
+        </button>
+        <button class="nav-btn" id="indexBtn" data-href="__INDEX_URL__">
+          返回书目
+        </button>
+        <button
+          class="nav-btn"
+          id="nextChapterBtn"
+          data-href="__NEXT_CHAPTER_URL__"
+        >
+          下一章
+        </button>
+        <button
+          class="nav-btn"
+          id="nextVolumeBtn"
+          data-href="__NEXT_VOLUME_URL__"
+        >
+          下一卷
+        </button>
+      </div>
+
+      <div class="footer">
+        Tip: hover a line to highlight the pair. Double-click to mark the pair.
       </div>
     </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">Space</span>
-      <div class="ctrl-slider-group">
-        <input type="range" id="spaceSlider" class="ctrl-slider" min="0.5" max="3" step="0.1" value="1" />
-        <input type="number" id="spaceInput" class="ctrl-slider-input" min="0.5" max="3" step="0.1" value="1" />
-      </div>
-    </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">Width</span>
-      <div class="ctrl-slider-group">
-        <input type="range" id="widthSlider" class="ctrl-slider" min="50" max="100" step="1" value="75" />
-        <input type="number" id="widthInput" class="ctrl-slider-input" min="50" max="100" step="1" value="75" />
-      </div>
-    </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">Pos</span>
-      <div class="ctrl-slider-group">
-        <input type="range" id="positionSlider" class="ctrl-slider" min="0" max="100" step="0.1" value="0" />
-        <input type="number" id="posInput" class="ctrl-slider-input" min="0" max="100" step="0.01" value="0" />
-      </div>
-    </div>
 
-    <div class="ctrl-divider"></div>
+    <button class="scroll-top-btn" id="scrollTopBtn">↑</button>
 
-    <div class="ctrl-row">
-      <span class="ctrl-label">Click</span>
-      <select id="clickAction" class="ctrl-select">
-        <option value="swap">Swap</option>
-        <option value="expand">Expand</option>
-      </select>
-    </div>
-
-    <div class="ctrl-row ctrl-row-actions">
-      <button id="resetSettings" class="ctrl-btn">↻ Reset</button>
-      <button id="clearSwaps" class="ctrl-btn">✕ Swap</button>
-      <button id="clearProgress" class="ctrl-btn">🗑️ Clear</button>
-    </div>
-  </div>  <div class="progress-bar">
-    <div class="progress-fill" id="progressFill"></div>
-  </div>
-
-  <div id="content" class="col" style="min-height:400px"></div>
-
-  <div class="chapter-nav" id="chapterNav" style="margin-top:12px;display:flex;gap:8px;justify-content:center">
-    <button class="nav-btn" id="prevVolumeBtn" data-href="__PREV_VOLUME_URL__">上一卷</button>
-    <button class="nav-btn" id="prevChapterBtn" data-href="__PREV_CHAPTER_URL__">上一章</button>
-    <button class="nav-btn" id="indexBtn" data-href="__INDEX_URL__">返回书目</button>
-    <button class="nav-btn" id="nextChapterBtn" data-href="__NEXT_CHAPTER_URL__">下一章</button>
-    <button class="nav-btn" id="nextVolumeBtn" data-href="__NEXT_VOLUME_URL__">下一卷</button>
-  </div>
-
-  <div class="footer">Tip: hover a line to highlight the pair. Double-click to mark the pair.</div>
-</div>
-
-<button class="scroll-top-btn" id="scrollTopBtn">↑</button>
-
-<script>
-{{COMMON_JS}}
-{{CHAPTER_JS}}
-</script>
-</body>
+    <script>
+      {
+        {
+          COMMON_JS;
+        }
+      }
+      {
+        {
+          CHAPTER_JS;
+        }
+      }
+    </script>
+  </body>
 </html>

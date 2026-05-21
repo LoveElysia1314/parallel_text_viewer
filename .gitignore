@@ -78,6 +78,15 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# Build output
+output/
+
+# Data directory (shared from BilingualRanobeReader)
+data/
+
+# Local development
+*.local.*
+
 # IPython
 profile_default/
 ipython_config.py

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "parallel-text-viewer"
-version = "0.6.0"
+version = "0.7.0"
 description = "A tool for generating offline HTML viewers from parallel text files. Provides both CLI and programmatic API for building and organizing bilingual books."
 readme = "README.md"
 requires-python = ">=3.7"
@@ -44,7 +44,7 @@ packages = ["parallel_text_viewer"]
 package-dir = {"" = "."}
 
 [tool.setuptools.package-data]
-parallel_text_viewer = ["py.typed"]
+parallel_text_viewer = ["py.typed", "html_templates/*"]
 
 [tool.black]
 line-length = 100

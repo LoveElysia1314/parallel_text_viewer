@@ -47,13 +47,24 @@ def main():
         logger.warning(f"无法切换工作目录到 {project_root}, 将使用当前工作目录")
 
     # 解析命令行参数
-    data_root = sys.argv[1] if len(sys.argv) > 1 else "data"
-    output_dir = sys.argv[2] if len(sys.argv) > 2 else "output"
-    book_id = sys.argv[3] if len(sys.argv) > 3 else "2930"
+    import argparse
 
-    # 检查是否有额外选项
-    skip_images = "--no-images" in sys.argv
-    skip_validation = "--no-validate" in sys.argv
+    parser = argparse.ArgumentParser(description="并行文本查看器 — 构建工具")
+    parser.add_argument("data_root", nargs="?", default="data", help="数据根目录（默认 data）")
+    parser.add_argument("output_dir", nargs="?", default="output", help="输出目录（默认 output）")
+    parser.add_argument("book_id", nargs="?", default="2930", help="作品 ID（默认 2930）")
+    parser.add_argument("--no-images", action="store_true", help="跳过图片复制")
+    parser.add_argument("--no-validate", action="store_true", help="跳过配置验证")
+    parser.add_argument("--serve", "-s", action="store_true", help="构建完成后启动本地服务器")
+    parser.add_argument("--serve-port", type=int, default=8080, help="本地服务器端口（默认 8080）")
+    parser.add_argument("--open", "-o", action="store_true", help="构建完成后在浏览器中打开")
+    args = parser.parse_args()
+
+    data_root = args.data_root
+    output_dir = args.output_dir
+    book_id = args.book_id
+    skip_images = args.no_images
+    skip_validation = args.no_validate
 
     logger.info("=" * 70)
     logger.info("parallel_text_viewer 构建工具")
@@ -97,6 +108,11 @@ def main():
                 )
 
             logger.info("=" * 70)
+
+            # 启动本地服务器
+            if args.serve or args.open:
+                _start_local_server(output_path, args.serve_port, args.open)
+
             return 0
         else:
             logger.error("\n" + "=" * 70)
@@ -115,6 +131,35 @@ def main():
 
         traceback.print_exc()
         return 1
+
+
+def _start_local_server(directory: Path, port: int, open_browser: bool = False):
+    """启动本地 HTTP 服务器"""
+    import http.server
+    import socketserver
+    import webbrowser
+
+    os.chdir(directory)
+
+    class QuietHandler(http.server.SimpleHTTPRequestHandler):
+        def log_message(self, fmt, *args):
+            logger.info(f"  [server] {fmt % args}")
+
+    try:
+        url = f"http://localhost:{port}"
+        logger.info(f"\n{'=' * 50}")
+        logger.info(f"  本地服务器: {url}")
+        logger.info(f"  目录: {directory}")
+        logger.info(f"  按 Ctrl+C 停止")
+        logger.info(f"{'=' * 50}")
+
+        if open_browser:
+            webbrowser.open(url)
+
+        with socketserver.TCPServer(("", port), QuietHandler) as httpd:
+            httpd.serve_forever()
+    except KeyboardInterrupt:
+        logger.info("\n服务器已停止。")
 
 
 if __name__ == "__main__":
